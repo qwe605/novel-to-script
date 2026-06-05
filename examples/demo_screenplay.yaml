@@ -1,0 +1,2181 @@
+script:
+  version: '1.0'
+  script_type: screenplay
+  title: 穿成病娇大佬的亡妻
+  source: E:\notel\穿成病娇大佬的亡妻
+  metadata:
+    total_scenes: 9
+    total_beats: 169
+    estimated_duration_minutes: 11.3
+    adapted_by: AI 辅助改编（novel-to-script）
+    adaptation_notes: 模式：rule | 来源章节数：3
+  characters:
+  - id: 女主：苏念（原书中亡妻名：陆晚）
+    name: 女主：苏念（原书中亡妻名：陆晚）
+    aliases: []
+    description: 不能暴露身份——原书中陆晚是被人害死的，凶手还在暗处
+    voice_tags: []
+    archetype: ''
+  - id: 男主：顾深寒
+    name: 男主：顾深寒
+    aliases: []
+    description: 不是失忆，是主动选择——"她死了，我活着有什么意义，不如过她曾经过的日子"
+    voice_tags: []
+    archetype: ''
+  - id: 猫：年糕
+    name: 猫：年糕
+    aliases: []
+    description: ''
+    voice_tags: []
+    archetype: ''
+  sequences:
+  - id: seq_01
+    name: 开端（第1章、第2章、第3章）
+    description: null
+    scenes:
+    - sc_001
+    - sc_002
+    - sc_003
+    - sc_004
+    - sc_005
+    - sc_006
+    - sc_007
+    - sc_008
+    - sc_009
+  scenes:
+  - scene_id: sc_001
+    sequence_id: seq_01
+    heading:
+      int_ext: INT.
+      location: 待设定地点
+      time: DAY
+    source_chapters:
+    - 1
+    estimated_duration_seconds: 80
+    type: dialogue_heavy
+    mood: ''
+    beats:
+    - beat_id: b_001
+      type: action
+      character: null
+      content: 我是被冻醒的。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_002
+      type: action
+      character: null
+      content: 后脑勺抵着冰凉的金属面，空气里有消毒水和福尔马林的味道，刺鼻得我眼泪都出来了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_003
+      type: action
+      character: null
+      content: 我猛地睁开眼。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_004
+      type: action
+      character: null
+      content: 头顶是惨白的日光灯管，嗡嗡作响。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_005
+      type: action
+      character: null
+      content: 我侧过头，看到旁边一排不锈钢抽屉柜——太平间的那种。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_006
+      type: action
+      character: null
+      content: 有一扇是开着的，里面空的。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_007
+      type: action
+      character: null
+      content: 我低头看自己：白色裹尸布，赤脚，脚趾冻得发紫。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_008
+      type: action
+      character: null
+      content: 我从金属推车上坐起来，裹尸布滑落，露出锁骨下方一道缝合的伤口，像一条蜈蚣趴在胸口。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_009
+      type: action
+      character: null
+      content: 这不是我的身体。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_010
+      type: dialogue
+      character: null
+      content: 我
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_011
+      type: action
+      character: null
+      content: 记忆像潮水一样涌进来，又冷又急，我抱着脑袋蜷缩在推车上，牙齿咬得咯咯响。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_012
+      type: action
+      character: null
+      content: 我叫陆晚。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_013
+      type: action
+      character: null
+      content: 不，我不叫陆晚。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_014
+      type: action
+      character: null
+      content: 我是苏念，一个普通的上班族，昨天还在加班赶方案，现在穿进了一本我追了三个月的小说里。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_015
+      type: action
+      character: null
+      content: 穿成了男主的亡妻。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_016
+      type: action
+      character: null
+      content: 已经已死的亡妻。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_017
+      type: action
+      character: null
+      content: 陆晚的记忆告诉我：她是被人从天台推下去的。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_018
+      type: action
+      character: null
+      content: 凶手是谁，她到死都没看清。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_019
+      type: action
+      character: null
+      content: 只记得那双手很用力，还有坠落时耳边的风声。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_020
+      type: action
+      character: null
+      content: 我咬了咬牙，强迫自己冷静。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+  - scene_id: sc_002
+    sequence_id: seq_01
+    heading:
+      int_ext: INT.
+      location: 待设定地点
+      time: DAY
+    source_chapters:
+    - 1
+    estimated_duration_seconds: 30
+    type: static
+    mood: ''
+    beats:
+    - beat_id: b_021
+      type: action
+      character: null
+      content: 太平间没有人，走廊也是空的，墙上的时钟指向凌晨三点。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_022
+      type: action
+      character: null
+      content: 我找到角落一个储物柜，里面有几件旧护工服，我胡乱套上，又找到一双拖鞋。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_023
+      type: action
+      character: null
+      content: 手机。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_024
+      type: action
+      character: null
+      content: 我需要一部手机。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_025
+      type: action
+      character: null
+      content: 护工服口袋里有一部老旧的备用机，还有电。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+  - scene_id: sc_003
+    sequence_id: seq_01
+    heading:
+      int_ext: INT.
+      location: 待设定地点
+      time: DAY
+    source_chapters:
+    - 1
+    estimated_duration_seconds: 68
+    type: dialogue_heavy
+    mood: ''
+    beats:
+    - beat_id: b_026
+      type: dialogue
+      character: null
+      content: 陆晚
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_027
+      type: action
+      character: null
+      content: 【北城青年女性坠楼身亡，警方排除他杀】
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_028
+      type: action
+      character: null
+      content: 排除他杀。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_029
+      type: action
+      character: null
+      content: 她被人推下去的，排除他杀。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_030
+      type: action
+      character: null
+      content: 我咬紧牙关，继续往下翻。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_031
+      type: action
+      character: null
+      content: 【顾氏集团少总顾深寒辞去一切职务，疑因丧妻精神状态不佳】
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_032
+      type: action
+      character: null
+      content: 【知情人透露：顾深寒已搬离豪宅，目前下落不明】
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_033
+      type: action
+      character: null
+      content: 【顾氏股价连跌七日，董事会紧急任命代理CEO】
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_034
+      type: action
+      character: null
+      content: 我的手停在屏幕上。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_035
+      type: action
+      character: null
+      content: 陆晚的记忆里，顾深寒是那种站在人群中央、所有人都要低头的人。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_036
+      type: action
+      character: null
+      content: 冷，狠，掌控一切。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_037
+      type: action
+      character: null
+      content: 他爱陆晚爱到骨子里，占有欲强到病态，她去世前一个月他们吵了架，她搬出来住。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_038
+      type: action
+      character: null
+      content: 然后她死了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_039
+      type: action
+      character: null
+      content: 他连她最后一面都没见到。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_040
+      type: dialogue
+      character: null
+      content: 顾深寒 现状
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_041
+      type: action
+      character: null
+      content: 没有新闻了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_042
+      type: action
+      character: null
+      content: 一个商业帝国的掌控者，三个月前从所有人的视线里消失了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+  - scene_id: sc_004
+    sequence_id: seq_01
+    heading:
+      int_ext: INT.
+      location: 待设定地点
+      time: DAY
+    source_chapters:
+    - 1
+    estimated_duration_seconds: 80
+    type: dialogue_heavy
+    mood: ''
+    beats:
+    - beat_id: b_043
+      type: action
+      character: null
+      content: 我关掉手机，靠着走廊的墙壁，盯着对面太平间的门。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_044
+      type: action
+      character: null
+      content: 陆晚走了快一百天。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_045
+      type: dialogue
+      character: null
+      content: 活
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_046
+      type: action
+      character: null
+      content: 我不能回去找顾深寒。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_047
+      type: dialogue
+      character: null
+      content: 复活
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_048
+      type: action
+      character: null
+      content: 第二，我不是陆晚。我有她的记忆，有她的脸，但我不是她。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_049
+      type: dialogue
+      character: null
+      content: 我回来了
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_050
+      type: action
+      character: null
+      content: 可是——
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_051
+      type: action
+      character: null
+      content: 他现在在哪里？
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_052
+      type: action
+      character: null
+      content: 他还好吗？
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_053
+      type: action
+      character: null
+      content: 陆晚的记忆里全是他。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_054
+      type: action
+      character: null
+      content: 他给她系发圈时弯腰的样子，他生气时攥紧她手腕的力度，他半夜把她从噩梦里摇醒时眼底的慌张。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_055
+      type: action
+      character: null
+      content: 这些记忆不是我的，但它们在我胸口烧得发烫。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_056
+      type: action
+      character: null
+      content: 我必须找到他。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_057
+      type: action
+      character: null
+      content: 不是以陆晚的身份——是以一个陌生人的身份。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_058
+      type: action
+      character: null
+      content: 我要确认他还活着。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_059
+      type: action
+      character: null
+      content: 如果他不好，我会想办法。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_060
+      type: action
+      character: null
+      content: 我站起来，腿还在发软，但我已经有了方向。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_061
+      type: action
+      character: null
+      content: 先活下来。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_062
+      type: action
+      character: null
+      content: 然后，找到顾深寒。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+  - scene_id: sc_005
+    sequence_id: seq_01
+    heading:
+      int_ext: INT.
+      location: 待设定地点
+      time: DAY
+    source_chapters:
+    - 2
+    estimated_duration_seconds: 60
+    type: dialogue_heavy
+    mood: ''
+    beats:
+    - beat_id: b_063
+      type: action
+      character: null
+      content: 我花了三天搞定身份。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_064
+      type: dialogue
+      character: null
+      content: 死人
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_065
+      type: action
+      character: null
+      content: 好在陆晚生前有个备用身份，是顾深寒给她办的，名字叫苏念，用来处理一些不想被媒体追踪的私事。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_066
+      type: action
+      character: null
+      content: 身份证、银行卡都在陆晚出租屋的暗格里。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_067
+      type: action
+      character: null
+      content: 卡里有三千二百块钱。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_068
+      type: action
+      character: null
+      content: 我在理发店剪掉了长发，齐耳短发，刘海遮住额头。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_069
+      type: action
+      character: null
+      content: 又去二手店买了几件风格完全不同的衣服——陆晚穿白裙子，我穿卫衣牛仔裤。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_070
+      type: action
+      character: null
+      content: 镜子里的人和陆晚有七分像，但气质完全不同。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_071
+      type: action
+      character: null
+      content: 够了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_072
+      type: action
+      character: null
+      content: 找到顾深寒比我想象的容易。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_073
+      type: action
+      character: null
+      content: 陆晚的记忆里有一个地址——她搬出来后租的那间小出租屋，城南老小区，六楼没电梯。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_074
+      type: action
+      character: null
+      content: 她死后，顾深寒搬进了这里。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_075
+      type: action
+      character: null
+      content: 我站在小区门口，看着这栋灰扑扑的老楼，墙皮剥落，楼道里堆着杂物。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_076
+      type: action
+      character: null
+      content: 顾深寒住在这里。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_077
+      type: action
+      character: null
+      content: 那个曾经住在江景顶层豪宅的人，住在这里。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+  - scene_id: sc_006
+    sequence_id: seq_01
+    heading:
+      int_ext: INT.
+      location: 待设定地点
+      time: DAY
+    source_chapters:
+    - 2
+    estimated_duration_seconds: 30
+    type: dialogue_heavy
+    mood: ''
+    beats:
+    - beat_id: b_078
+      type: action
+      character: null
+      content: 我攥了攥拳头，走进了小区。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_079
+      type: dialogue
+      character: null
+      content: 出租
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_080
+      type: action
+      character: null
+      content: 我交了钱，拿了钥匙。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_081
+      type: action
+      character: null
+      content: 搬家那天我没什么东西，就一个双肩包。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_082
+      type: action
+      character: null
+      content: 我正蹲在门口掏钥匙，楼道里响起脚步声。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_083
+      type: action
+      character: null
+      content: 沉稳，但有些疲惫的节奏。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_084
+      type: action
+      character: null
+      content: 我抬头。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+  - scene_id: sc_007
+    sequence_id: seq_01
+    heading:
+      int_ext: INT.
+      location: ，眼神能让整个会议室
+      time: DAY
+    source_chapters:
+    - 2
+    estimated_duration_seconds: 156
+    type: dialogue_heavy
+    mood: ''
+    beats:
+    - beat_id: b_085
+      type: action
+      character: null
+      content: 一个男人站在走廊尽头，逆着光。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_086
+      type: action
+      character: null
+      content: 他很高，肩很宽，但瘦得过分，黑色冲锋衣挂在身上显得空荡荡的。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_087
+      type: action
+      character: null
+      content: 脸上没什么表情，眼底是洗不掉的青黑色，像很久没睡好觉的人。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_088
+      type: action
+      character: null
+      content: 手里提着一个外卖保温箱。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_089
+      type: action
+      character: null
+      content: 头盔夹在腋下。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_090
+      type: action
+      character: null
+      content: 是他。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_091
+      type: action
+      character: null
+      content: 顾深寒。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_092
+      type: action
+      character: null
+      content: 陆晚的记忆像电流一样窜过我全身——他以前不是这样的。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_093
+      type: action
+      character: null
+      content: 他以前穿定制西装，袖扣是白金的，走路带风，眼神能让整个会议室安静下来。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_094
+      type: action
+      character: null
+      content: 现在他穿着起球的黑色冲锋衣，运动鞋沾着泥点，嘴唇干裂，颧骨突出。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_095
+      type: action
+      character: null
+      content: 我的鼻子一酸，赶紧低下头，假装继续开门。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_096
+      type: action
+      character: null
+      content: 他从我身边经过。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_097
+      type: action
+      character: null
+      content: 没有看我。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_098
+      type: action
+      character: null
+      content: 脚步声停在601门口，钥匙转动的声音。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_099
+      type: action
+      character: null
+      content: 然后——
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_100
+      type: action
+      character: null
+      content: 一团白色的东西从他打开的门缝里窜了出来。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_101
+      type: action
+      character: null
+      content: 布偶猫，毛蓬松得像一朵云，蓝色的圆眼珠。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_102
+      type: action
+      character: null
+      content: 年糕。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_103
+      type: action
+      character: null
+      content: 陆晚的猫。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_104
+      type: action
+      character: null
+      content: 它没有往顾深寒脚边蹭，而是直直地朝我跑过来。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_105
+      type: action
+      character: null
+      content: 小脑袋拱我的小腿，呼噜呼噜地响，尾巴竖得高高的，像见到了失散多年的主人。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_106
+      type: action
+      character: null
+      content: 因为我就是。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_107
+      type: action
+      character: null
+      content: 这具身体的气味、温度，对年糕来说就是它的主人。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_108
+      type: action
+      character: null
+      content: 我僵住了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_109
+      type: action
+      character: null
+      content: 不敢动，不敢弯腰摸它，甚至不敢呼吸。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_110
+      type: action
+      character: null
+      content: 余光里，顾深寒的脚步停了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_111
+      type: action
+      character: null
+      content: 他转过身。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_112
+      type: action
+      character: null
+      content: 我感觉到他的视线落在年糕身上，又落在我身上。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_113
+      type: action
+      character: null
+      content: 三秒。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_114
+      type: action
+      character: null
+      content: 空气像凝固了一样。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_115
+      type: action
+      character: null
+      content: 然后他走过来，弯腰把年糕抱起来。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_116
+      type: action
+      character: null
+      content: 猫在他怀里挣扎了一下，回头看我，喵了一声。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_117
+      type: dialogue
+      character: null
+      content: 抱歉。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_118
+      type: dialogue
+      character: null
+      content: 它不常这样。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_119
+      type: dialogue
+      character: null
+      content: 没事，我喜欢猫。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_120
+      type: action
+      character: null
+      content: 他没再说什么，抱着年糕进了屋，门关上了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_121
+      type: action
+      character: null
+      content: 我靠在自己的门框上，心跳得快要从嗓子眼蹦出来。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_122
+      type: action
+      character: null
+      content: 年糕认出我了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_123
+      type: action
+      character: null
+      content: 他注意到了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_124
+      type: action
+      character: null
+      content: 他一定注意到了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+  - scene_id: sc_008
+    sequence_id: seq_01
+    heading:
+      int_ext: INT.
+      location: 待设定地点
+      time: DUSK
+    source_chapters:
+    - 3
+    estimated_duration_seconds: 100
+    type: dialogue_heavy
+    mood: ''
+    beats:
+    - beat_id: b_125
+      type: action
+      character: null
+      content: 第二天傍晚，有人敲我的门。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_126
+      type: action
+      character: null
+      content: 我正在拆网上买的便宜床品——四件套加枕头，总共花了八十九块。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_127
+      type: action
+      character: null
+      content: 打开门，顾深寒站在外面。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_128
+      type: action
+      character: null
+      content: 他换了一身干净的深灰色长袖，头发像是刚洗过，还有些潮。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_129
+      type: action
+      character: null
+      content: 手里端着一只马克杯。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_130
+      type: action
+      character: null
+      content: 白色的，杯壁上印着一只卡通柴犬，耳朵那里有一小块釉面磕掉了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_131
+      type: action
+      character: null
+      content: 我认识这只杯子。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_132
+      type: action
+      character: null
+      content: 陆晚的记忆告诉我——这是她大学时买的，用了六年，顾深寒嫌丑，她偏要用，两个人还为这事拌过嘴。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_133
+      type: action
+      character: null
+      content: 他怎么会把这个给我？
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_134
+      type: dialogue
+      character: null
+      content: 搬家用得上。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_135
+      type: dialogue
+      character: null
+      content: 我多的。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_136
+      type: action
+      character: null
+      content: 多的。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_137
+      type: dialogue
+      character: null
+      content: 多的
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_138
+      type: action
+      character: null
+      content: 我碰到杯壁的瞬间，有一股酸涩从胸口涌上来。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_139
+      type: dialogue
+      character: null
+      content: 陌生人
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_140
+      type: action
+      character: null
+      content: 还是——他在试探？
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_141
+      type: dialogue
+      character: null
+      content: 谢谢，正好缺一个。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_142
+      type: action
+      character: null
+      content: 他点了下头，转身要走。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_143
+      type: action
+      character: null
+      content: 年糕又从他屋里跑出来了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_144
+      type: action
+      character: null
+      content: 这次它更过分，直接从我脚边的门缝钻进了我的屋子，跳上我还没铺好的床，团成一团，开始打呼噜。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_145
+      type: action
+      character: null
+      content: 我和顾深寒同时看向那团白色的毛球。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_146
+      type: action
+      character: null
+      content: 沉默了两秒。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_147
+      type: dialogue
+      character: null
+      content: ……它最近不太正常。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_148
+      type: dialogue
+      character: null
+      content: 它叫什么名字？
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_149
+      type: dialogue
+      character: null
+      content: 年糕。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_150
+      type: dialogue
+      character: null
+      content: 年糕，
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_151
+      type: dialogue
+      character: null
+      content: 它好乖。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+  - scene_id: sc_009
+    sequence_id: seq_01
+    heading:
+      int_ext: INT.
+      location: 待设定地点
+      time: DAY
+    source_chapters:
+    - 3
+    estimated_duration_seconds: 72
+    type: dialogue_heavy
+    mood: ''
+    beats:
+    - beat_id: b_152
+      type: action
+      character: null
+      content: 顾深寒走进来，弯腰把年糕从床上捞起来。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_153
+      type: action
+      character: null
+      content: 猫不情不愿地被抱走，回头看了我一眼，圆眼珠里像是有委屈。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_154
+      type: action
+      character: null
+      content: 他抱着猫站在我门口，垂着眼看了我一瞬。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_155
+      type: action
+      character: null
+      content: 那个眼神很复杂——我说不清是什么，但陆晚的记忆告诉我，他以前看她的时候，也是这种眼神。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_156
+      type: action
+      character: null
+      content: 像是在确认什么。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_157
+      type: action
+      character: null
+      content: 像是怕一眨眼就消失。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_158
+      type: dialogue
+      character: null
+      content: 打扰了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_159
+      type: action
+      character: null
+      content: 我站在原地，手里攥着那只旧马克杯，指节发白。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_160
+      type: action
+      character: null
+      content: 杯壁上的卡通柴犬笑得傻乎乎的。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_161
+      type: dialogue
+      character: null
+      content: 这么丑的杯子你也买。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_162
+      type: dialogue
+      character: null
+      content: 丑才可爱啊，就像你。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_163
+      type: action
+      character: null
+      content: 他当时挑了下眉，把她整个人捞进怀里。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_164
+      type: dialogue
+      character: null
+      content: 再说一遍谁丑？
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_165
+      type: action
+      character: null
+      content: 这段记忆不是我的。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_166
+      type: action
+      character: null
+      content: 但我的眼眶热了。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_167
+      type: action
+      character: null
+      content: 我把杯子放在窗台上，旁边是夕阳最后一点余光。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_168
+      type: action
+      character: null
+      content: 顾深寒。
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
+    - beat_id: b_169
+      type: action
+      character: null
+      content: 你到底在想什么？
+      parenthetical: null
+      extensions:
+        screenplay:
+          shot: null
+          camera_move: null
+          transition: null
+        audio_drama: null
+        stage_play: null
