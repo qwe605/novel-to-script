@@ -2,6 +2,8 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { convertFile, getTaskStatus, getDownloadUrl, getProviders, testProvider } from '../api/convert.js'
+import ScriptPreview from '../components/ScriptPreview.vue'
+import StoryboardView from '../components/StoryboardView.vue'
 
 // ========== localStorage 持久化 ==========
 const LS_KEY_AI     = 'nts_ai_config_v2'
@@ -30,6 +32,7 @@ const taskId      = ref('')
 const status      = ref('')
 const showAIKey   = ref(false)
 const showAISettings = ref(false)
+const previewTab = ref('script') // 'script' | 'storyboard' | 'yaml'
 
 // 提供商列表（初始默认值，后端加载后覆盖）
 const providerList = ref([
@@ -542,17 +545,35 @@ function highlightedYaml(text) {
       </div>
     </aside>
 
-    <!-- ============ 中栏：YAML 预览 ============ -->
+    <!-- ============ 中栏：剧本预览 ============ -->
     <section class="panel center-panel">
       <div class="panel-title">
-        <span>📝 YAML 预览</span>
+        <div class="tab-row">
+          <button class="tab-btn" :class="{ active: previewTab === 'script' }" @click="previewTab = 'script'">📋 剧本预览</button>
+          <button v-if="isManju" class="tab-btn" :class="{ active: previewTab === 'storyboard' }" @click="previewTab = 'storyboard'">🎬 分镜预览</button>
+          <button class="tab-btn" :class="{ active: previewTab === 'yaml' }" @click="previewTab = 'yaml'">📝 YAML源码</button>
+        </div>
         <span v-if="status === 'completed'" class="status-badge success">转换完成</span>
         <span v-else-if="status === 'failed'" class="status-badge error">转换失败</span>
         <span v-else-if="loading" class="status-badge pending">转换中...</span>
       </div>
-      <div class="yaml-preview" v-if="yamlText">
+
+      <!-- 剧本预览 -->
+      <div v-if="yamlText && previewTab === 'script'" style="flex:1;overflow:hidden">
+        <ScriptPreview :yamlText="yamlText" :config="config" />
+      </div>
+
+      <!-- 分镜预览（仅漫剧） -->
+      <div v-else-if="yamlText && previewTab === 'storyboard' && isManju" style="flex:1;overflow:hidden">
+        <StoryboardView :yamlText="yamlText" />
+      </div>
+
+      <!-- YAML 源码 -->
+      <div v-else-if="yamlText && previewTab === 'yaml'" class="yaml-preview">
         <pre v-html="highlightedYaml(yamlText)"></pre>
       </div>
+
+      <!-- 空状态 -->
       <div v-else class="yaml-empty">
         <div class="empty-icon">📖</div>
         <div class="empty-text">上传小说并点击"开始转换"</div>
@@ -775,6 +796,19 @@ function highlightedYaml(text) {
 
 /* ===== 中栏 ===== */
 .center-panel { flex: 1; min-width: 0; }
+
+/* Tab row */
+.tab-row { display: flex; gap: 2px; }
+.tab-btn {
+  font-size: 12px; padding: 5px 14px; border: none; border-radius: 6px;
+  background: transparent; color: var(--text-muted); cursor: pointer;
+  transition: all 0.15s; font-family: var(--sans);
+}
+.tab-btn:hover { background: var(--bg-hover); color: var(--text-secondary); }
+.tab-btn.active {
+  background: var(--accent-cyan-dim); color: var(--accent-cyan); font-weight: 600;
+}
+
 .status-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
 .status-badge.success { background: rgba(52,211,153,0.15); color: var(--success); }
 .status-badge.error   { background: rgba(248,113,113,0.15); color: var(--danger); }
