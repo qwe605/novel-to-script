@@ -1,0 +1,284 @@
+# =============================================================================
+# 通用剧本 YAML Schema v1.0
+# Novel-to-Script 项目正式 Schema 定义
+# 用途：作为 Pydantic 模型、YAML 校验、人类编写的参考模板
+# =============================================================================
+
+script:
+  # ---------------------------------------------------------------------------
+  # 顶层元数据
+  # ---------------------------------------------------------------------------
+  version: "1.0"                          # Schema 版本，必须严格等于 "1.0"
+  script_type: "screenplay"               # 剧本类型：screenplay | audio_drama | stage_play
+  title: "示例剧本：穿成病娇大佬的亡妻"    # 剧本标题
+  source: "穿成病娇大佬的亡妻/正文.md"     # 来源小说文件路径或书名
+
+  # ---------------------------------------------------------------------------
+  # 全局统计信息
+  # ---------------------------------------------------------------------------
+  metadata:
+    total_scenes: 2                       # 场景总数（自动生成）
+    total_beats: 7                        # 节拍总数（自动生成）
+    estimated_duration_minutes: 3.5       # 预估总时长（分钟）
+    adapted_by: "AI 辅助改编"              # 改编者名称
+    adaptation_notes: |
+      第1-2章合并为开端序列。原小说第一人称内心独白
+      转为视觉动作和潜台词。
+
+  # ---------------------------------------------------------------------------
+  # 角色表
+  # ---------------------------------------------------------------------------
+  # 所有在剧本中出现的角色必须在此注册。
+  # id 使用英文蛇形命名，便于程序引用；name 使用中文角色名。
+  # ---------------------------------------------------------------------------
+  characters:
+    - id: "lin_wan"
+      name: "林婉"
+      aliases: ["林小姐"]
+      description: "穿书女主，性格冷静果断，有医学背景"
+      voice_tags: ["冷静短句", "面对威胁时不自觉压低声音", "医学术语脱口而出"]
+      archetype: "穿书清醒女主"
+
+    - id: "gu_ye"
+      name: "顾夜"
+      aliases: ["顾先生", "顾总"]
+      description: "病娇大佬，表面温文尔雅，实则掌控欲极强"
+      voice_tags: ["语速缓慢", "习惯性停顿", "尾音带笑却眼神冰冷"]
+      archetype: "病娇反派男主"
+
+  # ---------------------------------------------------------------------------
+  # 序列/幕表
+  # ---------------------------------------------------------------------------
+  # Sequence 是 Scene 的逻辑分组。可以按小说章节分，也可以按戏剧结构分。
+  # 建议命名方式：seq_01, seq_02... 或 act_01, act_02...
+  # ---------------------------------------------------------------------------
+  sequences:
+    - id: "seq_01"
+      name: "开端：苏醒与试探"
+      description: "林婉穿书后醒来，发现自己身处顾夜的控制之下，第一次正面对峙"
+      scenes:
+        - "sc_01_01"
+        - "sc_01_02"
+
+  # ---------------------------------------------------------------------------
+  # 场景表（核心）
+  # ---------------------------------------------------------------------------
+  scenes:
+    # =========================================================================
+    # Scene 示例 1：动作主导场景
+    # =========================================================================
+    - scene_id: "sc_01_01"
+      sequence_id: "seq_01"
+      heading:
+        int_ext: "INT."                   # 内景 / 外景 / 内+外景
+        location: "顾夜别墅 - 主卧"        # 地点，支持多级（建筑 - 房间）
+        time: "NIGHT"                      # 时间：DAY | NIGHT | DAWN | DUSK | LATER | CONTINUOUS
+      source_chapters: [1]                 # 来源小说章节编号（支持多章合并）
+      estimated_duration_seconds: 90       # 预估场景时长（秒）
+      type: "action"                       # 场景类型：dialogue_heavy | action | montage | transition | static
+      mood: "压抑→警觉"                    # 场景情绪弧线，继承小说大纲
+      beats:
+        - beat_id: "b_01"
+          type: "action"
+          character: "lin_wan"             # 动作执行者（可选，但建议填写）
+          content: "林婉猛然睁眼，瞳孔在黑暗中急剧收缩。她下意识摸向枕边——空无一物。"
+          extensions:
+            screenplay:
+              shot: "EXTREME_CLOSE-UP"     # 景别：CLOSE-UP | MEDIUM | WIDE | POV | EXTREME_CLOSE-UP
+              camera_move: "HANDHELD"      # 镜头运动：PAN | TILT | TRACK | DOLLY | HANDHELD | STATIC
+            audio_drama:
+              sfx: ["急促呼吸声", "布料摩擦声"]
+              bgm: "低沉弦乐，渐强"
+              pan: "近→远"                  # 声像移动：L→R | 远→近 | 中心等
+            stage_play:
+              stage_direction: "林婉从床上惊起，双手在虚空中抓握"
+              lighting: "顶光聚焦面部，四周全黑"
+
+        - beat_id: "b_02"
+          type: "action"
+          content: "床头一盏暖黄台灯被打开。光线从低角度刺入，在墙面投下巨大阴影。"
+          extensions:
+            screenplay:
+              shot: "WIDE"
+              camera_move: "PAN"
+            audio_drama:
+              sfx: ["开关咔哒声"]
+              bgm: "弦乐骤停，只剩低频嗡鸣"
+            stage_play:
+              lighting: "侧逆光，影子被拉长至天幕"
+
+    # =========================================================================
+    # Scene 示例 2：对白主导场景
+    # =========================================================================
+    - scene_id: "sc_01_02"
+      sequence_id: "seq_01"
+      heading:
+        int_ext: "INT."
+        location: "顾夜别墅 - 主卧门口"
+        time: "NIGHT"
+      source_chapters: [1, 2]
+      estimated_duration_seconds: 120
+      type: "dialogue_heavy"
+      mood: "试探→紧张"
+      beats:
+        - beat_id: "b_03"
+          type: "action"
+          character: "gu_ye"
+          content: "顾夜斜倚门框，手指漫不经心地转着一枚银色打火机。火光在他指尖明灭。"
+          extensions:
+            screenplay:
+              shot: "MEDIUM"
+              camera_move: "STATIC"
+            audio_drama:
+              sfx: ["金属打火机开合声", "火焰呼呼声"]
+              pan: "R"                        # 声音从右侧传来
+            stage_play:
+              stage_direction: "顾夜倚靠门框，面向观众，打火机在手中把玩"
+              lighting: "脚光，面部半明半暗"
+
+        - beat_id: "b_04"
+          type: "dialogue"
+          character: "gu_ye"
+          content: "醒了？"
+          parenthetical: "（尾音轻轻上扬，像问又像陈述）"    # 对白时的语气/动作提示
+          extensions:
+            screenplay:
+              shot: "CLOSE-UP"
+            audio_drama:
+              narration_tone: "漫不经心却暗藏审视"
+            stage_play:
+              stage_direction: "目光始终未离开林婉"
+
+        - beat_id: "b_05"
+          type: "action"
+          character: "lin_wan"
+          content: "林婉没有回答。她的视线越过顾夜，落在走廊尽头那扇紧闭的房门上。"
+          extensions:
+            screenplay:
+              shot: "POV"                     # 林婉的主观视角
+              camera_move: "RACK_FOCUS"       # 对焦从顾夜面部转移到远处房门
+            audio_drama:
+              sfx: ["远处钟声，沉闷"]
+            stage_play:
+              stage_direction: "林婉侧头，视线投向舞台深处"
+
+        - beat_id: "b_06"
+          type: "dialogue"
+          character: "lin_wan"
+          content: "那扇门后，是什么？"
+          parenthetical: "（声音平稳，尾指却无意识攥紧被角）"
+          extensions:
+            screenplay:
+              shot: "CLOSE-UP"
+            audio_drama:
+              narration_tone: "冷静克制，尾音微颤"
+            stage_play:
+              lighting: "追光移向林婉手部"
+
+        - beat_id: "b_07"
+          type: "action"
+          character: "gu_ye"
+          content: "顾夜笑了。他将打火机收回口袋，直起身，一步步走向林婉。每一步都让木地板发出轻微呻吟。"
+          extensions:
+            screenplay:
+              shot: "LOW_ANGLE"               # 低角度仰拍，增强压迫感
+              camera_move: "DOLLY_IN"         # 镜头缓缓推近
+              transition: "SMASH CUT"         # 转场提示（如需要）
+            audio_drama:
+              sfx: ["脚步声，由远及近", "木地板吱呀声"]
+              bgm: "心跳般低频鼓点，渐强"
+              pan: "远→近"
+            stage_play:
+              stage_direction: "顾夜缓步横移至舞台前区，灯光随脚步收缩"
+              lighting: "聚光范围逐渐收窄"
+
+  # =========================================================================
+  # 漫剧（网文动态漫画）扩展示例
+  # =========================================================================
+  # 以下为同一 Beat 在漫剧模式下的扩展字段示例。
+  # 漫剧融合画面+配音+音效+字幕，是本服的核心场景。
+  # =========================================================================
+
+  - beat_id: "b_08"
+    type: "action"
+    character: "lin_wan"
+    content: "林婉猛然睁眼，瞳孔在黑暗中急剧收缩。"
+    extensions:
+      manju:
+        # ---- 画面层 ----
+        shot: "EXTREME_CLOSE-UP"           # 景别：极特写
+        frame_description: "黑场中突然睁眼，瞳孔从涣散到聚焦，眼白布满血丝"
+        dialogue_bubble: null               # 无对白气泡
+        sfx_visual: ["嗖——"]               # 视觉拟声词
+
+        # ---- 特效与转场 ----
+        transition: null
+        visual_effect: "ZOOM_IN_EYE"        # 瞳孔放大特效
+        effect_note: "瞳孔聚焦瞬间叠加ZOOM IN，持续0.5秒后切正常比例"
+
+        # ---- 声音层 ----
+        bgm: "低频弦乐，单一音符持续"
+        sfx: ["急促呼吸声", "心跳声渐强"]
+        voice_direction: null               # action 类型无配音
+
+        # ---- 字幕层 ----
+        subtitle_style: "NORMAL"
+        subtitle_note: null
+
+        # ---- 时长 ----
+        duration_seconds: 2.5               # 2.5秒
+
+  - beat_id: "b_09"
+    type: "dialogue"
+    character: "gu_ye"
+    content: "醒了？"
+    parenthetical: "（尾音轻轻上扬）"
+    extensions:
+      manju:
+        shot: "CLOSE-UP"                    # 特写
+        frame_description: "侧逆光，嘴角微扬但眼神冰冷，手里把玩着打火机"
+        dialogue_bubble: "右下"              # 台词气泡：右下
+        sfx_visual: null
+
+        transition: null
+        visual_effect: null
+        effect_note: null
+
+        bgm: "弦乐骤停，只剩低频嗡鸣"
+        sfx: ["打火机金属开合声"]
+        voice_direction: "漫不经心却暗藏审视，尾音上扬像问又像陈述"
+
+        subtitle_style: "BUBBLE"             # 漫画气泡式字幕
+        subtitle_note: "白色圆角气泡，黑边，字号适中"
+
+        duration_seconds: 2.0
+
+  # =========================================================================
+  # Episode（集）层级示例 —— 漫剧独有
+  # =========================================================================
+  # 以下为漫剧集定义的示例，展示按集组织场景和钩子（卡点）的结构。
+  # =========================================================================
+
+episodes:
+  - episode_id: "ep_01"
+    episode_number: 1
+    title: "亡妻归来"
+    hook: "林婉猛然睁眼，发现自己躺在太平间——而她已经是'死人'。"
+    target_duration_seconds: 240            # 4 分钟
+    source_chapters: [1]
+    scenes:
+      - "sc_01_01"
+      - "sc_01_02"
+    cover_prompt: "黑底，女主睁眼特写，瞳孔中反射出太平间的灯光，标题大字"
+    opening_sfx: "心跳声+低频弦乐渐强"
+
+  # ---------------------------------------------------------------------------
+  # 关于空 extensions 的说明
+  # ---------------------------------------------------------------------------
+  # 初稿阶段，若某些 Beat 尚未确定镜头/音效/灯光，extensions 字段可以：
+  #   1) 完全省略（最简洁）
+  #   2) 保留空对象 {}（提示此处待填充）
+  #   3) 保留结构但值为 null（如 shot: null，明确标记为"待定"）
+  #
+  # 推荐方式 2 或 3，因为字段存在本身就是对作者的"待办提醒"。
+  # ---------------------------------------------------------------------------
