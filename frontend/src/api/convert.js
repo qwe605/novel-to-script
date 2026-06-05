@@ -7,9 +7,15 @@ const client = axios.create({
 
 // ========== 转换 ==========
 
-export async function convertFile(file, params) {
+export async function convertFile(files, params) {
   const form = new FormData()
-  form.append('file', file)
+
+  // 支持单文件或多文件
+  const fileList = Array.isArray(files) ? files : [files]
+  for (const f of fileList) {
+    form.append('files', f)
+  }
+
   form.append('script_type', params.script_type)
   form.append('mode', params.mode)
   form.append('panel_mode', params.panel_mode)

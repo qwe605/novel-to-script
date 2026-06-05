@@ -11,6 +11,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
+from typing import List
 
 from app.core.config import RESULTS_DIR, UPLOAD_DIR
 from app.models.schemas import AIConfig, ConvertRequest, ConvertResponse, EpisodeConfig, EpisodeSummary, TaskStatusResponse
@@ -32,9 +33,26 @@ def _parse_optional_json(raw: str | None, model_cls):
         return None
 
 
+def _merge_chapter_files(files: list[UploadFile], task_id: str) -> str:
+    """
+    将多个章节文件合并为单个带章节标记的文本文件。
+    每个文件自动编号为 ###N. 文件名（不含扩展名）。
+    """
+    merged_path = UPLOAD_DIR / f"{task_id}_merged.md"
+    with open(merged_path, "w", encoding="utf-8") as out:
+        for idx, f in enumerate(files, 1):
+            name = (f.filename or "章节").rsplit(".", 1)[0]
+            out.write(f"\n###{idx}. {name}\n\n")
+            content = f.file.read()
+            if isinstance(content, bytes):
+                content = content.decode("utf-8", errors="replace")
+            out.write(content.strip() + "\n")
+    return str(merged_path)
+
+
 @router.post("", response_model=ConvertResponse)
 async def create_convert_task(
-    file: UploadFile = File(...),
+    files: List[UploadFile] = File(...),
     script_type: str = Form("manju"),
     mode: str = Form("rule"),
     panel_mode: str = Form("simple"),
@@ -43,7 +61,10 @@ async def create_convert_task(
     episode_config: str | None = Form(None),
 ):
     """
-    提交转换任务：上传小说文件（.txt/.md/.zip），返回 task_id。
+    提交转换任务：上传 1 个或多个小说文件（.txt/.md/.zip），返回 task_id。
+
+    多文件时自动按上传顺序合并为带章节标记的文本（###1. 文件名）。
+    也支持单文件 .zip（notel 项目目录压缩包）。
 
     新增参数（JSON 字符串）：
     - ai_config: AI 模型配置，如 '{"model":"claude-sonnet-4-6","temperature":0.7}'
@@ -62,25 +83,31 @@ async def create_convert_task(
     elif api_key and ai_config_obj and not ai_config_obj.api_key:
         ai_config_obj.api_key = api_key
 
+    if not files:
+        raise HTTPException(status_code=400, detail="请至少上传 1 个文件")
+
     task_id = str(uuid.uuid4())
-    upload_path = UPLOAD_DIR / f"{task_id}_{file.filename}"
 
-    # 保存上传文件
-    with open(upload_path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
-
-    # 处理压缩包（notel 项目目录压缩）
-    input_path = upload_path
-    if file.filename and file.filename.endswith(".zip"):
+    # 情况 1：单文件 .zip → 解压为 notel 项目目录
+    input_path: str | None = None
+    if len(files) == 1 and files[0].filename and files[0].filename.endswith(".zip"):
+        upload_path = UPLOAD_DIR / f"{task_id}_{files[0].filename}"
+        with open(upload_path, "wb") as f:
+            shutil.copyfileobj(files[0].file, f)
         extract_dir = UPLOAD_DIR / task_id
         with zipfile.ZipFile(upload_path, "r") as z:
             z.extractall(extract_dir)
-        # 如果压缩包内只有一个目录，进入该目录
         items = list(extract_dir.iterdir())
-        if len(items) == 1 and items[0].is_dir():
-            input_path = items[0]
-        else:
-            input_path = extract_dir
+        input_path = str(items[0]) if len(items) == 1 and items[0].is_dir() else str(extract_dir)
+    elif len(files) == 1:
+        # 情况 2：单文件 .txt/.md → 直接保存
+        upload_path = UPLOAD_DIR / f"{task_id}_{files[0].filename}"
+        with open(upload_path, "wb") as f:
+            shutil.copyfileobj(files[0].file, f)
+        input_path = str(upload_path)
+    else:
+        # 情况 3：多文件 → 合并为一个带章节标记的文本
+        input_path = _merge_chapter_files(files, task_id)
 
     _tasks[task_id] = {
         "task_id": task_id,
