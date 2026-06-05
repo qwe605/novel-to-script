@@ -33,6 +33,8 @@ const status      = ref('')
 const showAIKey   = ref(false)
 const showAISettings = ref(false)
 const previewTab = ref('script') // 'script' | 'storyboard' | 'yaml'
+const originalYaml = ref('')       // 转换完成时的原始 YAML（用于对比是否被编辑过）
+const isDirty = ref(false)         // 是否已被用户修改过
 
 // 提供商列表（初始默认值，后端加载后覆盖）
 const providerList = ref([
@@ -289,15 +291,30 @@ async function loadResult(id) {
   result.value = data
   try {
     const resp = await fetch(getDownloadUrl(id))
-    yamlText.value = await resp.text()
+    const text = await resp.text()
+    yamlText.value = text
+    originalYaml.value = text
+    isDirty.value = false
   } catch {
     yamlText.value = '# 预览加载失败'
+    originalYaml.value = ''
   }
 }
 
+function onYamlEdited(newYaml) {
+  yamlText.value = newYaml
+  isDirty.value = originalYaml.value !== '' && newYaml !== originalYaml.value
+}
+
 function onDownload() {
-  if (!taskId.value || status.value !== 'completed') return
-  window.open(getDownloadUrl(taskId.value), '_blank')
+  if (!yamlText.value) return
+  // 下载经过编辑的 YAML（而非服务端原始文件）
+  const blob = new Blob([yamlText.value], { type: 'application/x-yaml;charset=utf-8' })
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = `剧本_已编辑.yaml`
+  a.click()
+  URL.revokeObjectURL(a.href)
 }
 
 // ========== YAML 高亮 ==========
@@ -541,7 +558,9 @@ function highlightedYaml(text) {
         </div>
 
         <el-button v-if="status === 'completed'" type="primary" plain size="default"
-          @click="onDownload" class="download-btn">⬇️ 下载 YAML</el-button>
+          @click="onDownload" class="download-btn">
+          {{ isDirty ? '⬇️ 下载已编辑的 YAML' : '⬇️ 下载 YAML' }}
+        </el-button>
       </div>
     </aside>
 
@@ -560,12 +579,12 @@ function highlightedYaml(text) {
 
       <!-- 剧本预览 -->
       <div v-if="yamlText && previewTab === 'script'" style="flex:1;overflow:hidden">
-        <ScriptPreview :yamlText="yamlText" :config="config" />
+        <ScriptPreview :yamlText="yamlText" :config="config" @update:yamlText="onYamlEdited" />
       </div>
 
       <!-- 分镜预览（仅漫剧） -->
       <div v-else-if="yamlText && previewTab === 'storyboard' && isManju" style="flex:1;overflow:hidden">
-        <StoryboardView :yamlText="yamlText" />
+        <StoryboardView :yamlText="yamlText" @update:yamlText="onYamlEdited" />
       </div>
 
       <!-- YAML 源码 -->
