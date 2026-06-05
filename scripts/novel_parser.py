@@ -89,13 +89,31 @@ class NovelTextParser:
     ]
 
     def parse_file(self, path: Path | str) -> list[Chapter]:
-        """从文件解析章节列表"""
+        """从文件解析章节列表，自动处理编码错误"""
         path = Path(path)
-        text = path.read_text(encoding="utf-8")
+        if not path.exists():
+            raise FileNotFoundError(f"文件不存在: {path}")
+        if path.stat().st_size == 0:
+            raise ValueError(f"文件为空: {path}")
+        text = self._read_with_encoding_fallback(path)
         return self.parse_text(text)
+
+    @staticmethod
+    def _read_with_encoding_fallback(path: Path) -> str:
+        """尝试多种编码读取文件"""
+        for enc in ("utf-8", "utf-8-sig", "gbk", "gb2312", "gb18030", "latin-1"):
+            try:
+                return path.read_text(encoding=enc)
+            except (UnicodeDecodeError, UnicodeError):
+                continue
+        raw = path.read_bytes()
+        return raw.decode("utf-8", errors="replace")
 
     def parse_text(self, text: str) -> list[Chapter]:
         """从文本解析章节列表"""
+        if not text or not text.strip():
+            raise ValueError("输入文本为空，无法解析")
+
         # 统一换行符
         text = text.replace("\r\n", "\n").replace("\r", "\n")
 
@@ -103,12 +121,14 @@ class NovelTextParser:
         for pattern, pattern_name in self.DELIMITER_PATTERNS:
             chapters = self._try_split(text, pattern)
             if len(chapters) >= 1:
-                # 至少找到 1 个章节分隔符才算匹配成功
                 if len(chapters) > 1 or chapters[0].number != 0:
-                    return chapters
+                    return [ch for ch in chapters if ch.content.strip()]
 
         # 兜底：没有分隔符时，整段文本作为第 1 章
-        return [Chapter(number=1, content=text.strip())]
+        text = text.strip()
+        if not text:
+            raise ValueError("输入文本解析后为空")
+        return [Chapter(number=1, content=text)]
 
     def _try_split(self, text: str, pattern: str) -> list[Chapter]:
         """尝试用指定正则分割章节"""
@@ -121,10 +141,16 @@ class NovelTextParser:
         chapters: list[Chapter] = []
         for i, match in enumerate(matches):
             number = int(match.group(1))
+            if number <= 0 or number > 100000:
+                continue
             title = match.group(2).strip() if len(match.groups()) > 1 and match.group(2) else None
+            if title and len(title) > 200:
+                title = title[:200]
             start = match.end()
             end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
             content = text[start:end].strip()
+            if not content:
+                continue
             chapters.append(Chapter(number=number, title=title, content=content))
 
         return chapters
@@ -145,7 +171,24 @@ class NotelProjectParser:
 
     def __init__(self, project_dir: Path | str):
         self.project_dir = Path(project_dir)
+        if not self.project_dir.exists():
+            raise FileNotFoundError(f"项目目录不存在: {self.project_dir}")
+        if not self.project_dir.is_dir():
+            raise NotADirectoryError(f"不是有效目录: {self.project_dir}")
         self.title = self.project_dir.name
+
+    @staticmethod
+    def _safe_read(path: Path) -> str | None:
+        """安全读取文件，多编码尝试"""
+        if not path.exists():
+            return None
+        for enc in ("utf-8", "utf-8-sig", "gbk", "gb2312", "gb18030", "latin-1"):
+            try:
+                return path.read_text(encoding=enc)
+            except (UnicodeDecodeError, UnicodeError):
+                continue
+        raw = path.read_bytes()
+        return raw.decode("utf-8", errors="replace")
 
     def parse(self) -> ParsedNovel:
         """解析整个 notel 项目"""
@@ -153,25 +196,29 @@ class NotelProjectParser:
 
         # 1. 解析正文
         text_path = self.project_dir / "正文.md"
-        if text_path.exists():
+        content = self._safe_read(text_path)
+        if content:
             parser = NovelTextParser()
-            novel.chapters = parser.parse_file(text_path)
+            novel.chapters = parser.parse_text(content)
 
         # 2. 解析设定
         setting_path = self.project_dir / "设定.md"
-        if setting_path.exists():
-            novel.characters = self._parse_setting(setting_path)
+        content = self._safe_read(setting_path)
+        if content:
+            novel.characters = self._parse_setting(content)
 
         # 3. 解析大纲
         outline_path = self.project_dir / "小节大纲.md"
-        if outline_path.exists():
-            novel.outlines = self._parse_outline(outline_path)
+        content = self._safe_read(outline_path)
+        if content:
+            novel.outlines = self._parse_outline(content)
 
         return novel
 
-    def _parse_setting(self, path: Path) -> list[NovelCharacter]:
-        """从设定.md 提取角色信息"""
-        text = path.read_text(encoding="utf-8")
+    def _parse_setting(self, text: str) -> list[NovelCharacter]:
+        """从设定.md 文本内容提取角色信息"""
+        if not text or not text.strip():
+            return []
         characters: list[NovelCharacter] = []
 
         # 策略：先定位 "## 人设" 区域，只在该区域内解析 ### 三级标题
@@ -233,9 +280,10 @@ class NotelProjectParser:
         characters = [c for c in characters if len(c.name) >= 2]
         return characters
 
-    def _parse_outline(self, path: Path) -> list[ChapterOutline]:
-        """从小节大纲.md 提取章级元数据"""
-        text = path.read_text(encoding="utf-8")
+    def _parse_outline(self, text: str) -> list[ChapterOutline]:
+        """从小节大纲.md 文本内容提取章级元数据"""
+        if not text or not text.strip():
+            return []
         outlines: list[ChapterOutline] = []
 
         # 匹配 "### 第N章：标题" 或 "### 第N章 标题"
