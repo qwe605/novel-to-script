@@ -19,6 +19,7 @@ export async function convertFile(files, params) {
   form.append('script_type', params.script_type)
   form.append('mode', params.mode)
   form.append('panel_mode', params.panel_mode)
+  if (params.title) form.append('title', params.title)
 
   // 向后兼容：顶层 api_key
   if (params.api_key && !params.ai_config) {
