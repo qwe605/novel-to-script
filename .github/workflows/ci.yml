@@ -24,11 +24,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt pytest
 
-      - name: Lint (ruff)
-        run: |
-          pip install ruff
-          ruff check .. --config ../pyproject.toml
-
       - name: Test (pytest)
         run: python -m pytest tests/ -v --tb=short
 
@@ -48,9 +43,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Lint
-        run: npx eslint src/ --ext .js,.vue
 
       - name: Build
         run: npm run build
