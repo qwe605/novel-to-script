@@ -30,10 +30,11 @@ def run_conversion(
     script_type: str,
     mode: str,
     panel_mode: str,
-    api_key: str | None,
-    ai_config: dict | None,
-    episode_config: dict | None,
-    results_dir: Path,
+    title: str | None = None,
+    api_key: str | None = None,
+    ai_config: dict | None = None,
+    episode_config: dict | None = None,
+    results_dir: Path | None = None,
 ) -> None:
     """
     在后台线程中执行转换，通过 store.update() 持续更新进度和结果。
@@ -56,15 +57,18 @@ def run_conversion(
 
             from app.services.converter import run_pipeline
 
+            timing_log: dict[str, float] = {}
             script_doc = run_pipeline(
                 input_path=input_path,
                 script_type=script_type,
                 mode=mode,
                 panel_mode=panel_mode,
+                title=title,
                 api_key=api_key,
                 ai_config=ai_config,
                 episode_config=episode_config,
                 on_progress=on_progress,
+                timing_log=timing_log,
             )
 
             # 保存 YAML
@@ -98,6 +102,7 @@ def run_conversion(
                 "result_path": str(result_path),
                 "title": root.title,
                 "characters": [c.model_dump() for c in root.characters],
+                "timing": timing_log,
                 "total_scenes": root.metadata.total_scenes,
                 "total_beats": root.metadata.total_beats,
                 "total_episodes": root.metadata.total_episodes,
@@ -107,12 +112,17 @@ def run_conversion(
 
         except Exception as e:
             tb = traceback.format_exc()
+            import sys
+            # 打印到 stderr 方便调试
+            print(f"\n[ERROR] task {task_id} failed:\n{tb}", file=sys.stderr)
+            # 取最后 3 行作为简要信息
+            tb_lines = tb.strip().split("\n")
+            short_msg = "\n".join(tb_lines[-4:]) if len(tb_lines) > 4 else tb
             store.update(task_id, {
                 "status": "failed",
                 "progress": 0,
                 "progress_message": f"转换失败: {e}",
-                "error": str(e),
-                "error_trace": tb,
+                "error": f"{e}\n\n详细堆栈:\n{short_msg}",
             })
 
     _get_executor().submit(_run)

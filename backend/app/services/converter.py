@@ -69,10 +69,12 @@ def run_pipeline(
     script_type: str,
     mode: str,
     panel_mode: str,
-    api_key: str | None,
+    title: str | None = None,
+    api_key: str | None = None,
     ai_config: dict | None = None,
     episode_config: dict | None = None,
     on_progress: Callable[[str, float], None] | None = None,
+    timing_log: dict[str, float] | None = None,
 ) -> ScriptDocument:
     """
     执行完整转换管线（供后台任务调用）。
@@ -96,6 +98,9 @@ def run_pipeline(
     novel = load_novel(input_path)
 
     # ---- 转换 ----
+    if title and title.strip():
+        novel.title = title.strip()
+
     ai_cfg = ai_config or {}
 
     try:
@@ -113,11 +118,14 @@ def run_pipeline(
             episode_config=episode_config,
             verbose=False,
             on_progress=on_progress,
+            timing_log=timing_log,
         )
     except ImportError as e:
-        raise RuntimeError(f"缺少 AI 依赖库: {e}。AI 模式请安装: pip install anthropic openai")
+        raise RuntimeError(f"缺少 AI 依赖库: {e}。AI 模式请安装: pip install anthropic openai") from e
     except Exception as e:
-        raise RuntimeError(f"转换失败: {e}") from e
+        import traceback
+        tb = traceback.format_exc()
+        raise RuntimeError(f"转换失败: {e}\n\n完整堆栈:\n{tb}") from e
 
 
 def convert_novel(
