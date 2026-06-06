@@ -34,3 +34,4 @@ backend/results/
 # Python cache
 *.py[cod]
 *$py.class
+backend/tasks/
