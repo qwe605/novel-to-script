@@ -1,100 +1,272 @@
-/* Novel-to-Script 深色主题 */
+/* =============================================================================
+   Novel-to-Script 设计系统
+   默认: 浅色主题       切换: html.dark → 深色主题
+   ============================================================================= */
 
+/* ---- 共享 token（不随主题变化） ---- */
 :root {
-  --bg-deep: #0b0d12;
-  --bg-panel: #13161f;
-  --bg-card: #1a1d28;
-  --bg-hover: #222633;
-  --border: #2a2e3d;
-  --border-light: #3a3f52;
-  --text-primary: #e8eaf0;
-  --text-secondary: #8b92a8;
-  --text-muted: #5a6078;
-  --accent-cyan: #22d3ee;
-  --accent-cyan-dim: rgba(34, 211, 238, 0.12);
-  --accent-amber: #f59e0b;
-  --accent-amber-dim: rgba(245, 158, 11, 0.12);
-  --success: #34d399;
-  --danger: #f87171;
-  --warning: #fbbf24;
-  --mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
-  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
 }
 
-* {
-  box-sizing: border-box;
+/* =============================================================================
+   浅色主题（默认 — :root 是浅色）
+   ============================================================================= */
+:root {
+  --bg-app:     #f5f6f8;
+  --bg-surface: #edeff3;
+  --bg-panel:   #ffffff;
+  --bg-card:    #f7f8fa;
+  --bg-hover:   #eef0f5;
+  --bg-active:  #e4e7ef;
+  --border-subtle: #e2e4eb;
+  --border:        #d4d7e0;
+  --border-strong: #c4c7d2;
+  --text-primary:    #171a24;
+  --text-secondary:  #4b5068;
+  --text-tertiary:   #8d92a8;
+  --text-disabled:   #c0c4d2;
+  --accent:        #0284c7;
+  --accent-hover:  #0369a1;
+  --accent-dim:    rgba(2, 132, 199, 0.08);
+  --accent-strong: rgba(2, 132, 199, 0.16);
+  --amber:       #d97706;
+  --amber-dim:   rgba(217, 119, 6, 0.10);
+  --green:       #059669;
+  --green-dim:   rgba(5, 150, 105, 0.10);
+  --red:         #dc2626;
+  --red-dim:     rgba(220, 38, 38, 0.10);
+  --purple:      #7c3aed;
+  --purple-dim:  rgba(124, 58, 237, 0.08);
+  --shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-lg:   0 8px 30px rgba(0, 0, 0, 0.10), 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 0 1px rgba(2, 132, 199, 0.25), 0 0 16px rgba(2, 132, 199, 0.08);
+
+  /* 向后兼容别名 */
+  --bg-deep:        var(--bg-app);
+  --border-light:   var(--border-strong);
+  --text-muted:     var(--text-tertiary);
+  --accent-cyan:     var(--accent);
+  --accent-cyan-dim: var(--accent-dim);
+  --accent-amber:     var(--amber);
+  --accent-amber-dim: var(--amber-dim);
+  --success: var(--green);
+  --danger:  var(--red);
+  --warning: var(--amber);
+  --mono:    var(--font-mono);
+  --sans:    var(--font-sans);
 }
 
-html, body, #app {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+/* =============================================================================
+   深色主题（html.dark 激活）
+   ============================================================================= */
+html.dark {
+  --bg-app:     #080a0f;
+  --bg-surface: #0e1119;
+  --bg-panel:   #111620;
+  --bg-card:    #181c27;
+  --bg-hover:   #202536;
+  --bg-active:  #282e41;
+  --border-subtle: #1e2333;
+  --border:        #262c3d;
+  --border-strong: #353d54;
+  --text-primary:    #f0f2f8;
+  --text-secondary:  #929ab5;
+  --text-tertiary:   #5f6882;
+  --text-disabled:   #3d4559;
+  --accent:        #38bdf8;
+  --accent-hover:  #7dd3fc;
+  --accent-dim:    rgba(56, 189, 248, 0.10);
+  --accent-strong: rgba(56, 189, 248, 0.18);
+  --amber:       #fbbf24;
+  --amber-dim:   rgba(251, 191, 36, 0.12);
+  --green:       #34d399;
+  --green-dim:   rgba(52, 211, 153, 0.12);
+  --red:         #f87171;
+  --red-dim:     rgba(248, 113, 113, 0.12);
+  --purple:      #a78bfa;
+  --purple-dim:  rgba(167, 139, 250, 0.12);
+  --shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-lg:   0 8px 30px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 0 1px rgba(56, 189, 248, 0.3), 0 0 20px rgba(56, 189, 248, 0.1);
+
+  /* 兼容别名 */
+  --bg-deep:        var(--bg-app);
+  --border-light:   var(--border-strong);
+  --text-muted:     var(--text-tertiary);
+  --accent-cyan:     var(--accent);
+  --accent-cyan-dim: var(--accent-dim);
+  --accent-amber:     var(--amber);
+  --accent-amber-dim: var(--amber-dim);
+  --success: var(--green);
+  --danger:  var(--red);
+  --warning: var(--amber);
+  --mono:    var(--font-mono);
+  --sans:    var(--font-sans);
 }
+
+/* =============================================================================
+   全局重置
+   ============================================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #app { height: 100%; margin: 0; padding: 0; }
 
 body {
-  font-family: var(--sans);
-  font-size: 14px;
-  line-height: 1.5;
+  font-family: var(--font-sans);
+  font-size: 14px; line-height: 1.6;
   color: var(--text-primary);
-  background: var(--bg-deep);
+  background: var(--bg-app);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv09';
+  transition: background var(--duration-normal) var(--ease-out),
+              color var(--duration-normal) var(--ease-out);
 }
 
-/* Element Plus 深色覆盖 */
+/* =============================================================================
+   滚动条
+   ============================================================================= */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* =============================================================================
+   Element Plus 全局覆盖
+   ============================================================================= */
+
+/* 主按钮 */
 .el-button--primary {
-  --el-button-bg-color: var(--accent-cyan);
-  --el-button-border-color: var(--accent-cyan);
-  --el-button-hover-bg-color: #67e8f9;
-  --el-button-hover-border-color: #67e8f9;
-  --el-button-text-color: #0b0d12;
+  --el-button-bg-color: var(--accent);
+  --el-button-border-color: var(--accent);
+  --el-button-hover-bg-color: var(--accent-hover);
+  --el-button-hover-border-color: var(--accent-hover);
+  --el-button-active-bg-color: var(--accent);
+  --el-button-text-color: #fff;
+  font-weight: 600; letter-spacing: -0.01em; border-radius: var(--radius-sm);
+}
+/* 浅色模式下主按钮文字保持白底可读 */
+/* 深色模式下主按钮文字也保持白底可读（#fff 在 dark accent 上也清晰） */
+html.dark .el-button--primary {
+  --el-button-text-color: #080a0f;
 }
 
+/* 成功/危险/默认按钮 */
+.el-button--success {
+  --el-button-bg-color: var(--green-dim);
+  --el-button-border-color: transparent;
+  --el-button-hover-bg-color: color-mix(in srgb, var(--green) 22%, transparent);
+  --el-button-text-color: var(--green);
+}
+.el-button--danger {
+  --el-button-bg-color: var(--red-dim);
+  --el-button-border-color: transparent;
+  --el-button-hover-bg-color: color-mix(in srgb, var(--red) 22%, transparent);
+  --el-button-text-color: var(--red);
+}
+.el-button--default {
+  --el-button-bg-color: var(--bg-card);
+  --el-button-border-color: var(--border);
+  --el-button-hover-bg-color: var(--bg-hover);
+  --el-button-hover-border-color: var(--border-strong);
+  --el-button-text-color: var(--text-secondary);
+}
+.el-button--default:disabled {
+  --el-button-bg-color: var(--bg-surface);
+  --el-button-border-color: var(--border-subtle);
+  --el-button-text-color: var(--text-disabled);
+}
+
+/* plain 变体 */
+.el-button--primary.is-plain {
+  --el-button-bg-color: var(--accent-dim);
+  --el-button-border-color: var(--accent);
+  --el-button-hover-bg-color: var(--accent-strong);
+  --el-button-text-color: var(--accent);
+}
+
+/* 文本按钮 */
+.el-button.is-text {
+  --el-button-hover-bg-color: var(--bg-hover);
+  --el-button-hover-text-color: var(--text-primary);
+  background: transparent; color: var(--text-secondary);
+}
+
+/* radio-button */
+.el-radio-group { display: flex; gap: 0; }
 .el-radio-button__original-radio:checked + .el-radio-button__inner {
-  background-color: var(--accent-cyan) !important;
-  border-color: var(--accent-cyan) !important;
-  color: #0b0d12 !important;
-  box-shadow: -1px 0 0 0 var(--accent-cyan) !important;
+  background: var(--accent-dim) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  box-shadow: -1px 0 0 0 var(--accent) !important;
 }
-
 .el-radio-button__inner {
-  background: var(--bg-card);
-  border-color: var(--border);
-  color: var(--text-secondary);
+  background: var(--bg-card); border-color: var(--border-subtle);
+  color: var(--text-tertiary); font-size: 12px; font-weight: 500;
+  padding: 6px 14px; transition: all var(--duration-fast) var(--ease-out);
 }
+.el-radio-button__inner:hover { color: var(--text-secondary); }
 
+/* 输入框 */
 .el-input__wrapper,
 .el-textarea__inner {
-  background: var(--bg-card) !important;
+  background: var(--bg-surface) !important;
+  box-shadow: 0 0 0 1px var(--border-subtle) inset !important;
+  border-radius: var(--radius-sm) !important;
+  transition: box-shadow var(--duration-fast) var(--ease-out);
+}
+.el-input__wrapper:hover,
+.el-textarea__inner:hover {
   box-shadow: 0 0 0 1px var(--border) inset !important;
 }
+.el-input__wrapper.is-focus,
+.el-textarea__inner:focus {
+  box-shadow: 0 0 0 1px var(--accent) inset, 0 0 0 3px var(--accent-dim) !important;
+}
+.el-input__inner { color: var(--text-primary) !important; }
+.el-input__inner::placeholder,
+.el-textarea__inner::placeholder { color: var(--text-tertiary) !important; }
 
-.el-input__inner {
-  color: var(--text-primary) !important;
+/* 选择器 */
+.el-select .el-input__wrapper { background: var(--bg-card) !important; }
+
+/* 数字输入 */
+.el-input-number .el-input__wrapper { background: var(--bg-card) !important; }
+.el-input-number__decrease,
+.el-input-number__increase {
+  background: var(--bg-hover) !important; color: var(--text-secondary) !important;
+  border-color: var(--border-subtle) !important;
 }
 
-.el-upload-dragger {
-  background: var(--bg-card);
-  border-color: var(--border);
-  color: var(--text-secondary);
-}
+/* 开关 */
+.el-switch.is-checked .el-switch__core { background: var(--accent) !important; border-color: var(--accent) !important; }
 
-.el-upload-dragger:hover {
-  border-color: var(--accent-cyan);
-}
+/* 进度条 */
+.el-progress-bar__outer { background: var(--bg-hover) !important; border-radius: 10px !important; }
+.el-progress-bar__inner { border-radius: 10px !important; }
 
-/* 滚动条 */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--border-light);
-}
+/* 滑块 */
+.el-slider__bar { background: var(--accent) !important; }
+.el-slider__button { border-color: var(--accent) !important; box-shadow: var(--shadow-sm) !important; }
+.el-slider__marks-text { font-size: 10px !important; color: var(--text-tertiary) !important; }
+
+/* 深色模式 Element Plus select 下拉面板（popper append-to-body 不受 scoped 影响） */
+html.dark .el-select-dropdown { background: var(--bg-panel) !important; border-color: var(--border) !important; }
+html.dark .el-select-dropdown__item { color: var(--text-primary) !important; }
+html.dark .el-select-dropdown__item.hover,
+html.dark .el-select-dropdown__item:hover { background: var(--bg-hover) !important; }
+html.dark .el-select-dropdown__item.selected { color: var(--accent) !important; }
+html.dark .el-popper.is-light { background: var(--bg-panel) !important; border-color: var(--border) !important; }
+html.dark .el-message { --el-message-bg-color: var(--bg-panel); }
