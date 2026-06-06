@@ -61,7 +61,6 @@ export function usePersistedConfig() {
     hook_style: 'cliffhanger',
     auto_split: true,
     title_template: '第{n}集 {subtitle}',
-    scene_prefix: '',
   }))
 
   // ---- 连通性测试状态 ----

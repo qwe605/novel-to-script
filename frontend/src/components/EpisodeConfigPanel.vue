@@ -6,6 +6,7 @@
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { generateCover } from '../api/convert.js'
+import { ICONS } from '../utils/icons.js'
 
 const props = defineProps({
   episodeConfig:  { type: Object, required: true },
@@ -56,23 +57,25 @@ function copyPrompt(epId) {
 
 <template>
   <aside class="panel right-panel">
-    <div class="panel-title">🎬 分集设置</div>
+    <div class="panel-title">
+      <span class="panel-title-label"><span class="pt-icon" v-html="ICONS.video" /> 分集设置</span>
+    </div>
     <div class="panel-scroll">
       <div class="config-section">
         <div class="config-group">
-          <label>🔘 启用分集</label>
+          <label><span class="label-icon" v-html="ICONS.zap" /> 启用分集</label>
           <el-switch v-model="episodeConfig.enabled" size="small" />
         </div>
 
         <template v-if="episodeConfig.enabled">
           <div class="config-group">
-            <label>🎯 目标集数 <span class="label-hint">（留空=自动）</span></label>
+            <label><span class="label-icon" v-html="ICONS.list" /> 目标集数 <span class="label-hint">（留空=自动）</span></label>
             <el-input-number v-model="episodeConfig.target_episodes" :min="1" :max="500"
               placeholder="自动" size="small" style="width:100%" />
           </div>
 
           <div class="config-group">
-            <label>⏱️ 集时长范围</label>
+            <label><span class="label-icon" v-html="ICONS.clock" /> 集时长范围</label>
             <div class="duration-row">
               <el-input-number v-model="episodeConfig.min_duration_seconds" :min="60" :max="600"
                 :step="30" size="small" style="width:45%" />
@@ -84,44 +87,42 @@ function copyPrompt(epId) {
           </div>
 
           <div class="config-group">
-            <label>🪝 集末钩子风格</label>
+            <label><span class="label-icon" v-html="ICONS.hook" /> 集末钩子风格</label>
             <el-select v-model="episodeConfig.hook_style" size="small">
               <el-option v-for="opt in hookStyleOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
             </el-select>
           </div>
 
           <div class="config-group">
-            <label>✂️ 自动切分场景</label>
+            <label><span class="label-icon" v-html="ICONS.scissors" /> 自动切分场景</label>
             <el-switch v-model="episodeConfig.auto_split" size="small" />
           </div>
 
           <div class="config-group">
-            <label>📝 集标题模板</label>
+            <label><span class="label-icon" v-html="ICONS.edit" /> 集标题模板</label>
             <el-input v-model="episodeConfig.title_template" size="small" placeholder="第{n}集 {subtitle}" />
             <span class="label-hint">可用变量: <code>{n}</code> <code>{subtitle}</code> <code>{pause}</code></span>
           </div>
 
-          <div class="config-group">
-            <label>🏷️ 场景前缀 <span class="label-hint">（可选）</span></label>
-            <el-input v-model="episodeConfig.scene_prefix" size="small" placeholder="例：S01E{n:02d}" />
-          </div>
         </template>
 
         <div v-else class="disabled-hint">
-          💡 不启用分集时，所有场景将合并在一个输出中
+          不启用分集时，所有场景将合并在一个输出中
         </div>
       </div>
 
       <!-- 生成结果 -->
-      <div class="section-divider" v-if="episodes.length"><span>📺 生成结果</span></div>
+      <div class="section-divider" v-if="episodes.length">
+        <span><span class="si-icon" v-html="ICONS.monitor" /> 生成结果</span>
+      </div>
 
       <div v-if="!episodes.length && !loading" class="empty-state">
-        <div class="empty-icon">🎞️</div>
+        <div class="empty-graphic" v-html="ICONS.video" />
         <div class="empty-text">设置分集参数后开始转换</div>
         <div class="empty-hint">集数结果将在此处展示</div>
       </div>
       <div v-else-if="loading" class="empty-state">
-        <div class="empty-icon">⏳</div>
+        <div class="empty-graphic loading-pulse" v-html="ICONS.refresh" />
         <div class="empty-text">转换中...</div>
       </div>
       <div v-else class="episode-list">
@@ -144,14 +145,14 @@ function copyPrompt(epId) {
               :loading="coverGenerating[ep.episode_id]"
               @click="onGenerateCover(ep)"
             >
-              🎨 {{ coverResults[ep.episode_id] ? '重新生成封面' : '生成封面' }}
+              <span class="cover-btn-icon" v-html="ICONS.sparkles" /> {{ coverResults[ep.episode_id] ? '重新生成' : '生成封面' }}
             </el-button>
             <el-button
               v-if="coverResults[ep.episode_id]"
               size="small" text
               @click="copyPrompt(ep.episode_id)"
             >
-              📋 复制提示词
+              <span class="cover-btn-icon" v-html="ICONS.copy" /> 复制提示词
             </el-button>
           </div>
 
@@ -170,51 +171,232 @@ function copyPrompt(epId) {
 </template>
 
 <style scoped>
-/* ... existing styles unchanged ... */
-.panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
-.panel-title { padding: 14px 18px; font-size: 14px; font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-.panel-scroll { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+/* ---- 图标 ---- */
+.panel-title-label { display: flex; align-items: center; gap: 7px; }
+.pt-icon { display: flex; color: var(--text-tertiary); }
+.label-icon { display: inline-flex; vertical-align: -2px; margin-right: 4px; color: var(--text-tertiary); }
+.si-icon { display: inline-flex; vertical-align: -2px; margin-right: 4px; }
+.empty-graphic { color: var(--text-tertiary); opacity: 0.25; margin-bottom: 10px; }
+.loading-pulse { animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.5; } }
+.cover-btn-icon { display: inline-flex; vertical-align: -2px; margin-right: 2px; }
 
-.right-panel { width: 320px; flex-shrink: 0; }
+/* ---- 面板基类 ---- */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.panel-title {
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  user-select: none;
+  background: var(--bg-surface);
+}
+.panel-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-.config-section { display: flex; flex-direction: column; gap: 12px; }
+.right-panel { width: 304px; flex-shrink: 0; }
+
+/* ---- 设置区 ---- */
+.config-section { display: flex; flex-direction: column; gap: 10px; }
 .config-group { display: flex; flex-direction: column; gap: 6px; }
-.config-group label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.config-group > label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
 
-.label-hint { font-size: 10px; color: var(--text-muted); font-weight: 400; }
-.label-hint code { font-family: var(--mono); font-size: 10px; background: var(--bg-card); padding: 1px 3px; border-radius: 2px; }
+.label-hint { font-size: 10px; color: var(--text-tertiary); font-weight: 400; }
+.label-hint code {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: var(--bg-card);
+  color: var(--text-tertiary);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
 
 .duration-row { display: flex; align-items: center; gap: 6px; }
-.duration-sep { color: var(--text-muted); font-weight: 500; }
+.duration-sep {
+  color: var(--text-tertiary);
+  font-weight: 500;
+  font-size: 13px;
+}
 
-.disabled-hint { padding: 12px; background: var(--bg-card); border-radius: 8px; font-size: 12px; color: var(--text-muted); text-align: center; }
+.disabled-hint {
+  padding: 14px;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  color: var(--text-tertiary);
+  text-align: center;
+  line-height: 1.5;
+}
 
-.section-divider { padding: 8px 0; font-size: 12px; font-weight: 600; color: var(--text-secondary); border-top: 1px solid var(--border); text-align: center; }
-.section-divider span { background: var(--bg-panel); padding: 0 8px; }
+/* ---- 区隔线 ---- */
+.section-divider {
+  padding: 6px 0 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-top: 1px solid var(--border-subtle);
+  text-align: center;
+}
+.section-divider span {
+  background: var(--bg-panel);
+  padding: 0 10px;
+}
 
-.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); min-height: 120px; }
-.empty-icon { font-size: 48px; opacity: 0.4; margin-bottom: 12px; }
-.empty-text { font-size: 14px; color: var(--text-secondary); margin-bottom: 4px; }
-.empty-hint { font-size: 12px; color: var(--text-muted); }
+/* ---- 空状态 ---- */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  min-height: 120px;
+  gap: 4px;
+}
+.empty-icon { font-size: 40px; opacity: 0.25; margin-bottom: 8px; }
+.empty-text { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+.empty-hint { font-size: 11px; color: var(--text-tertiary); }
 
-.episode-list { display: flex; flex-direction: column; gap: 10px; }
-.episode-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; transition: border-color 0.2s; }
-.episode-card:hover { border-color: var(--border-light); }
-.episode-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.ep-num { font-size: 13px; font-weight: 600; color: var(--accent-amber); }
-.ep-duration { font-size: 11px; color: var(--text-muted); background: var(--bg-deep); padding: 2px 6px; border-radius: 4px; }
-.ep-title { font-size: 12px; color: var(--text-primary); font-weight: 500; margin-bottom: 4px; }
-.ep-hook { font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.ep-meta { display: flex; gap: 8px; font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
-.ep-meta span { background: var(--bg-deep); padding: 2px 6px; border-radius: 4px; }
+/* ---- 集列表 ---- */
+.episode-list { display: flex; flex-direction: column; gap: 8px; }
+.episode-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  transition: all var(--duration-fast) var(--ease-out);
+  position: relative;
+}
+.episode-card:hover {
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
 
-/* cover */
-.cover-actions { display: flex; gap: 4px; border-top: 1px solid var(--border); padding-top: 6px; margin-top: 4px; }
-.cover-result { margin-top: 6px; padding: 8px; background: var(--bg-deep); border-radius: 6px; }
-.cover-meta { display: flex; gap: 8px; font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
-.cover-meta span { background: var(--bg-card); padding: 1px 6px; border-radius: 3px; }
-.cover-prompt-en { font-size: 10px; color: var(--text-secondary); line-height: 1.5; word-break: break-word; font-family: var(--mono); }
+/* 集编号 */
+.episode-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.ep-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--amber);
+  letter-spacing: -0.01em;
+}
+.ep-duration {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  background: var(--bg-surface);
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
 
-:deep(.el-switch.is-checked .el-switch__core) { background: var(--accent-cyan); border-color: var(--accent-cyan); }
+/* 集标题 */
+.ep-title {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+/* 钩子 */
+.ep-hook {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-weight: 400;
+}
+
+/* 元数据 */
+.ep-meta {
+  display: flex;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+.ep-meta span {
+  background: var(--bg-surface);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 450;
+}
+
+/* ---- 封面生成 ---- */
+.cover-actions {
+  display: flex;
+  gap: 4px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 6px;
+  margin-top: 4px;
+}
+.cover-result {
+  margin-top: 6px;
+  padding: 10px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+.cover-meta {
+  display: flex;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+.cover-meta span {
+  background: var(--bg-card);
+  padding: 1px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.01em;
+}
+.cover-prompt-en {
+  font-size: 10px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  word-break: break-word;
+  font-family: var(--font-mono);
+  font-weight: 450;
+}
+
 :deep(.el-select) { width: 100%; }
 </style>
