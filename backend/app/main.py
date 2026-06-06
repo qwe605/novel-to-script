@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import ALLOWED_ORIGINS
-from app.routers import convert, health, providers
+from app.routers import convert, cover, health, providers
 
 app = FastAPI(
     title="Novel-to-Script API",
@@ -27,6 +27,7 @@ app.add_middleware(
 app.include_router(convert.router)
 app.include_router(health.router)
 app.include_router(providers.router)
+app.include_router(cover.router)
 
 
 @app.get("/")

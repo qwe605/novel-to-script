@@ -96,6 +96,8 @@ def run_conversion(
                 "progress": 1.0,
                 "progress_message": "转换完成",
                 "result_path": str(result_path),
+                "title": root.title,
+                "characters": [c.model_dump() for c in root.characters],
                 "total_scenes": root.metadata.total_scenes,
                 "total_beats": root.metadata.total_beats,
                 "total_episodes": root.metadata.total_episodes,

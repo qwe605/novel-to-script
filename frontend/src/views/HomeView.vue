@@ -305,6 +305,9 @@ function highlightedYaml(text) {
       :hookStyleOptions="HOOK_STYLE_OPTIONS"
       :episodes="episodes"
       :loading="loading"
+      :scriptTitle="result?.title || ''"
+      :scriptType="config.script_type"
+      :characters="result?.characters || []"
     />
 
     <!-- 非漫剧右栏 -->

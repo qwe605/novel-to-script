@@ -1,20 +1,57 @@
 <script setup>
 /**
  * 分集配置面板 — 右栏（仅漫剧模式显示）。
- * 包含：分集参数设置 + 生成结果卡片列表。
+ * 包含：分集参数设置 + 生成结果卡片列表 + 封面图提示词生成。
  */
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
+import { ElMessage } from 'element-plus'
+import { generateCover } from '../api/convert.js'
 
 const props = defineProps({
   episodeConfig:  { type: Object, required: true },
   hookStyleOptions:{ type: Array,  default: () => [] },
   episodes:       { type: Array,  default: () => [] },
   loading:        { type: Boolean, default: false },
+  scriptTitle:    { type: String, default: '' },
+  scriptType:     { type: String, default: 'manju' },
+  characters:     { type: Array,  default: () => [] },
 })
 
 const durationLabel = computed(() =>
   `${Math.round(props.episodeConfig.min_duration_seconds / 60)}–${Math.round(props.episodeConfig.max_duration_seconds / 60)} 分钟/集`
 )
+
+// ---- cover generation ----
+const coverGenerating = ref({})   // { episode_id: true }
+const coverResults   = ref({})   // { episode_id: { prompt_cn, prompt_en, style, aspect_ratio } }
+
+async function onGenerateCover(ep) {
+  if (coverGenerating.value[ep.episode_id]) return
+  coverGenerating.value[ep.episode_id] = true
+  try {
+    const res = await generateCover({
+      title: props.scriptTitle || '未命名剧本',
+      script_type: props.scriptType,
+      hook: ep.hook,
+      characters: props.characters,
+      episode_title: ep.title,
+    })
+    coverResults.value[ep.episode_id] = res
+    ElMessage.success('封面提示词已生成')
+  } catch {
+    ElMessage.error('生成失败')
+  } finally {
+    coverGenerating.value[ep.episode_id] = false
+  }
+}
+
+function copyPrompt(epId) {
+  const r = coverResults.value[epId]
+  if (!r) return
+  navigator.clipboard.writeText(r.prompt_en).then(
+    () => ElMessage.success('英文提示词已复制到剪贴板'),
+  )
+}
 </script>
 
 <template>
@@ -99,6 +136,33 @@ const durationLabel = computed(() =>
             <span>{{ ep.scene_count ?? (ep.scenes?.length || 0) }} 场景</span>
             <span v-if="ep.source_chapters?.length">来源: 第{{ ep.source_chapters.join(',') }}章</span>
           </div>
+
+          <!-- 封面生成 -->
+          <div class="cover-actions">
+            <el-button
+              size="small" text
+              :loading="coverGenerating[ep.episode_id]"
+              @click="onGenerateCover(ep)"
+            >
+              🎨 {{ coverResults[ep.episode_id] ? '重新生成封面' : '生成封面' }}
+            </el-button>
+            <el-button
+              v-if="coverResults[ep.episode_id]"
+              size="small" text
+              @click="copyPrompt(ep.episode_id)"
+            >
+              📋 复制提示词
+            </el-button>
+          </div>
+
+          <!-- 封面提示词展示 -->
+          <div v-if="coverResults[ep.episode_id]" class="cover-result">
+            <div class="cover-meta">
+              <span>{{ coverResults[ep.episode_id].style }}</span>
+              <span>{{ coverResults[ep.episode_id].aspect_ratio }}</span>
+            </div>
+            <div class="cover-prompt-en">{{ coverResults[ep.episode_id].prompt_en }}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -106,6 +170,7 @@ const durationLabel = computed(() =>
 </template>
 
 <style scoped>
+/* ... existing styles unchanged ... */
 .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
 .panel-title { padding: 14px 18px; font-size: 14px; font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
 .panel-scroll { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
@@ -140,8 +205,15 @@ const durationLabel = computed(() =>
 .ep-duration { font-size: 11px; color: var(--text-muted); background: var(--bg-deep); padding: 2px 6px; border-radius: 4px; }
 .ep-title { font-size: 12px; color: var(--text-primary); font-weight: 500; margin-bottom: 4px; }
 .ep-hook { font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.ep-meta { display: flex; gap: 8px; font-size: 10px; color: var(--text-muted); }
+.ep-meta { display: flex; gap: 8px; font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
 .ep-meta span { background: var(--bg-deep); padding: 2px 6px; border-radius: 4px; }
+
+/* cover */
+.cover-actions { display: flex; gap: 4px; border-top: 1px solid var(--border); padding-top: 6px; margin-top: 4px; }
+.cover-result { margin-top: 6px; padding: 8px; background: var(--bg-deep); border-radius: 6px; }
+.cover-meta { display: flex; gap: 8px; font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+.cover-meta span { background: var(--bg-card); padding: 1px 6px; border-radius: 3px; }
+.cover-prompt-en { font-size: 10px; color: var(--text-secondary); line-height: 1.5; word-break: break-word; font-family: var(--mono); }
 
 :deep(.el-switch.is-checked .el-switch__core) { background: var(--accent-cyan); border-color: var(--accent-cyan); }
 :deep(.el-select) { width: 100%; }

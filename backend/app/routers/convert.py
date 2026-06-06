@@ -179,6 +179,8 @@ async def get_task_status(task_id: str):
         status=t["status"],
         script_type=t["script_type"],
         mode=t["mode"],
+        title=t.get("title"),
+        characters=t.get("characters"),
         progress=t.get("progress"),
         progress_message=t.get("progress_message"),
         total_scenes=t.get("total_scenes"),

@@ -64,6 +64,12 @@ export async function getDemoNovel() {
   return res.data
 }
 
+/** 生成封面图提示词 */
+export async function generateCover(params) {
+  const res = await client.post('/api/cover', params)
+  return res.data
+}
+
 /** 测试提供商连通性 + 拉取可用模型 */
 export async function testProvider(params) {
   const res = await client.post('/api/providers/test', params)
