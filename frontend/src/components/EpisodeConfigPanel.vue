@@ -183,13 +183,17 @@ function copyPrompt(epId) {
 
 /* ---- 面板基类 ---- */
 .panel {
-  background: var(--bg-panel);
+  background: rgba(255,255,255,0.38); backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.02);
+}
+html.dark .panel {
+  background: rgba(17,22,32,0.50);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.24), 0 1px 4px rgba(0,0,0,0.10);
 }
 .panel-title {
   padding: 12px 18px;
@@ -288,13 +292,12 @@ function copyPrompt(epId) {
 /* ---- 集列表 ---- */
 .episode-list { display: flex; flex-direction: column; gap: 8px; }
 .episode-card {
-  background: var(--bg-card);
+  background: rgba(255,255,255,0.22); backdrop-filter: blur(4px);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 12px;
-  transition: all var(--duration-fast) var(--ease-out);
-  position: relative;
+  border-radius: var(--radius-md); padding: 12px;
+  transition: all var(--duration-fast) var(--ease-out); position: relative;
 }
+html.dark .episode-card { background: rgba(14,17,25,0.24); }
 .episode-card:hover {
   border-color: var(--border);
   box-shadow: var(--shadow-sm);

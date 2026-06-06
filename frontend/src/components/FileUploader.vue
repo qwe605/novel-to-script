@@ -150,7 +150,8 @@ defineExpose({ getFiles, addFiles })
 </template>
 
 <style scoped>
-.upload-zone { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: 24px 16px 20px; text-align: center; cursor: pointer; transition: all var(--duration-normal) var(--ease-out); background: var(--bg-surface); position: relative; overflow: hidden; }
+.upload-zone { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: 24px 16px 20px; text-align: center; cursor: pointer; transition: all var(--duration-normal) var(--ease-out); background: rgba(255,255,255,0.20); backdrop-filter: blur(4px); position: relative; overflow: hidden; }
+html.dark .upload-zone { background: rgba(14,17,25,0.25); }
 .upload-zone::before { content: ''; position: absolute; inset: 0; opacity: 0; background: radial-gradient(ellipse at center, var(--accent-dim) 0%, transparent 70%); transition: opacity var(--duration-slow) var(--ease-out); }
 .upload-zone:hover::before, .upload-zone.dragover::before { opacity: 1; }
 .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); border-style: solid; }

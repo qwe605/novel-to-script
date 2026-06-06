@@ -1,0 +1,76 @@
+{
+  "task_id": "20e02f9c-2071-4246-8c63-b7b4d89da43d",
+  "status": "completed",
+  "progress": 1.0,
+  "progress_message": "转换完成",
+  "title": "3",
+  "script_type": "manju",
+  "mode": "ai",
+  "panel_mode": "simple",
+  "api_key": "sk-a95c592f710e48bdaa6f3f02762fc1fc",
+  "ai_config": {
+    "provider": "deepseek",
+    "api_key": "sk-a95c592f710e48bdaa6f3f02762fc1fc",
+    "model": "deepseek-v4-flash",
+    "base_url": null,
+    "temperature": 0.7,
+    "max_tokens": 8192,
+    "system_prompt": "",
+    "top_p": 1.0
+  },
+  "episode_config": {
+    "enabled": true,
+    "target_episodes": null,
+    "min_duration_seconds": 180,
+    "max_duration_seconds": 300,
+    "hook_style": "emotional",
+    "auto_split": true,
+    "title_template": "第{n}集 {subtitle}",
+    "scene_prefix": ""
+  },
+  "input_path": "E:\\notel\\novel-to-script\\backend\\uploads\\20e02f9c-2071-4246-8c63-b7b4d89da43d_merged.md",
+  "result_path": "E:\\notel\\novel-to-script\\backend\\results\\20e02f9c-2071-4246-8c63-b7b4d89da43d_剧本.yaml",
+  "error": null,
+  "created_at": 1780727981.6375892,
+  "characters": [
+    {
+      "id": "protagonist",
+      "name": "主角",
+      "aliases": null,
+      "description": "请根据小说设定补充角色信息",
+      "voice_tags": null,
+      "archetype": null,
+      "visual_tags": null
+    }
+  ],
+  "timing": {
+    "场景检测": 33.76,
+    "构建场景": 33.77,
+    "规划集数": 33.77,
+    "总耗时": 33.77
+  },
+  "total_scenes": 3,
+  "total_beats": 11,
+  "total_episodes": 1,
+  "estimated_duration_minutes": 1.5,
+  "episodes": [
+    {
+      "episode_id": "ep_01",
+      "episode_number": 1,
+      "title": "第1集 第1-3章",
+      "hook": "情感钩子：动作卡点 '林禾没有回答，只是打开文档，将标题改为《...'",
+      "target_duration_seconds": 180,
+      "source_chapters": [
+        1,
+        2,
+        3
+      ],
+      "scenes": [
+        "sc_001",
+        "sc_002",
+        "sc_003"
+      ],
+      "scene_count": 3
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "task_id": "a048e6a7-d9d3-4ee7-8d0f-b3c335f125fb",
+  "status": "completed",
+  "progress": 1.0,
+  "progress_message": "转换完成",
+  "script_type": "manju",
+  "mode": "rule",
+  "panel_mode": "simple",
+  "api_key": null,
+  "ai_config": null,
+  "episode_config": {
+    "enabled": true,
+    "target_episodes": null,
+    "min_duration_seconds": 180,
+    "max_duration_seconds": 300,
+    "hook_style": "cliffhanger",
+    "auto_split": true,
+    "title_template": "第{n}集 {subtitle}",
+    "scene_prefix": ""
+  },
+  "input_path": "E:\\notel\\novel-to-script\\backend\\uploads\\a048e6a7-d9d3-4ee7-8d0f-b3c335f125fb_demo_novel.md",
+  "result_path": "E:\\notel\\novel-to-script\\backend\\results\\a048e6a7-d9d3-4ee7-8d0f-b3c335f125fb_剧本.yaml",
+  "error": null,
+  "created_at": 1780720081.3257518,
+  "title": "a048e6a7-d9d3-4ee7-8d0f-b3c335f125fb_demo_novel",
+  "characters": [
+    {
+      "id": "protagonist",
+      "name": "主角",
+      "aliases": null,
+      "description": "请根据小说设定补充角色信息",
+      "voice_tags": null,
+      "archetype": null,
+      "visual_tags": null
+    }
+  ],
+  "total_scenes": 6,
+  "total_beats": 58,
+  "total_episodes": 1,
+  "estimated_duration_minutes": 3.8,
+  "episodes": [
+    {
+      "episode_id": "ep_01",
+      "episode_number": 1,
+      "title": "第1集 我是被冻醒的。",
+      "hook": "悬念卡点：动作卡点 '顾深寒。你到底在想什么？...'",
+      "target_duration_seconds": 226,
+      "source_chapters": [
+        1,
+        2,
+        3
+      ],
+      "scenes": [
+        "sc_001",
+        "sc_002",
+        "sc_003",
+        "sc_004",
+        "sc_005",
+        "sc_006"
+      ],
+      "scene_count": 6
+    }
+  ]
+}

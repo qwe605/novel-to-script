@@ -97,6 +97,10 @@ def run_pipeline(
     # ---- 加载 ----
     novel = load_novel(input_path)
 
+    # 用户自定义标题覆盖
+    if title and title.strip():
+        novel.title = title.strip()
+
     # ---- 转换 ----
     if title and title.strip():
         novel.title = title.strip()

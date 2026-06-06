@@ -1,0 +1,64 @@
+{
+  "task_id": "2fd18613-2e0f-44e2-9c65-22797a87df8c",
+  "status": "completed",
+  "progress": 1.0,
+  "progress_message": "转换完成",
+  "title": "穿成病娇大佬的亡妻",
+  "script_type": "manju",
+  "mode": "rule",
+  "panel_mode": "simple",
+  "api_key": null,
+  "ai_config": null,
+  "episode_config": {
+    "enabled": true,
+    "target_episodes": null,
+    "min_duration_seconds": 180,
+    "max_duration_seconds": 300,
+    "hook_style": "suspense",
+    "auto_split": true,
+    "title_template": "第{n}集 {subtitle}",
+    "scene_prefix": ""
+  },
+  "input_path": "E:\\notel\\novel-to-script\\backend\\uploads\\2fd18613-2e0f-44e2-9c65-22797a87df8c_demo_novel.md",
+  "result_path": "E:\\notel\\novel-to-script\\backend\\results\\2fd18613-2e0f-44e2-9c65-22797a87df8c_剧本.yaml",
+  "error": null,
+  "created_at": 1780722046.0459986,
+  "characters": [
+    {
+      "id": "protagonist",
+      "name": "主角",
+      "aliases": null,
+      "description": "请根据小说设定补充角色信息",
+      "voice_tags": null,
+      "archetype": null,
+      "visual_tags": null
+    }
+  ],
+  "total_scenes": 6,
+  "total_beats": 58,
+  "total_episodes": 1,
+  "estimated_duration_minutes": 3.8,
+  "episodes": [
+    {
+      "episode_id": "ep_01",
+      "episode_number": 1,
+      "title": "第1集 我是被冻醒的。",
+      "hook": "悬疑卡点：动作卡点 '顾深寒。你到底在想什么？...'",
+      "target_duration_seconds": 226,
+      "source_chapters": [
+        1,
+        2,
+        3
+      ],
+      "scenes": [
+        "sc_001",
+        "sc_002",
+        "sc_003",
+        "sc_004",
+        "sc_005",
+        "sc_006"
+      ],
+      "scene_count": 6
+    }
+  ]
+}

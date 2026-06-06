@@ -1,0 +1,36 @@
+{
+  "task_id": "9fd967d4-44a3-4d7f-886c-58defb5e92a1",
+  "status": "failed",
+  "progress": 0,
+  "progress_message": "转换失败: 转换失败: Unterminated string starting at: line 558 column 22 (char 14566)",
+  "title": "原文",
+  "script_type": "manju",
+  "mode": "ai",
+  "panel_mode": "simple",
+  "api_key": "sk-a95c592f710e48bdaa6f3f02762fc1fc",
+  "ai_config": {
+    "provider": "deepseek",
+    "api_key": "sk-a95c592f710e48bdaa6f3f02762fc1fc",
+    "model": "deepseek-v4-pro",
+    "base_url": null,
+    "temperature": 0.7,
+    "max_tokens": 8192,
+    "system_prompt": "",
+    "top_p": 1.0
+  },
+  "episode_config": {
+    "enabled": true,
+    "target_episodes": null,
+    "min_duration_seconds": 180,
+    "max_duration_seconds": 300,
+    "hook_style": "emotional",
+    "auto_split": true,
+    "title_template": "第{n}集 {subtitle}",
+    "scene_prefix": ""
+  },
+  "input_path": "E:\\notel\\novel-to-script\\backend\\uploads\\9fd967d4-44a3-4d7f-886c-58defb5e92a1_原文.txt",
+  "result_path": null,
+  "error": "转换失败: Unterminated string starting at: line 558 column 22 (char 14566)",
+  "created_at": 1780724016.0238574,
+  "error_trace": "Traceback (most recent call last):\n  File \"E:\\notel\\novel-to-script\\backend\\app\\services\\converter.py\", line 106, in run_pipeline\n    return generate_script(\n           ^^^^^^^^^^^^^^^^\n  File \"E:\\notel\\novel-to-script\\scripts\\novel_to_script.py\", line 373, in generate_script\n    max_tokens: int = 4096,\n                        ^^^\n  File \"E:\\notel\\novel-to-script\\scripts\\scene_detector.py\", line 666, in detect_scenes\n    result = detector.detect(chapter, outline)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\notel\\novel-to-script\\scripts\\scene_detector.py\", line 572, in detect\n    data = json.loads(raw)\n           ^^^^^^^^^^^^^^^\n  File \"C:\\Users\\mj\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\__init__.py\", line 346, in loads\n    return _default_decoder.decode(s)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\mj\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\decoder.py\", line 338, in decode\n    obj, end = self.raw_decode(s, idx=_w(s, 0).end())\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\mj\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\decoder.py\", line 354, in raw_decode\n    obj, end = self.scan_once(s, idx)\n               ^^^^^^^^^^^^^^^^^^^^^^\njson.decoder.JSONDecodeError: Unterminated string starting at: line 558 column 22 (char 14566)\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"E:\\notel\\novel-to-script\\backend\\app\\services\\task_runner.py\", line 60, in _run\n    script_doc = run_pipeline(\n                 ^^^^^^^^^^^^^\n  File \"E:\\notel\\novel-to-script\\backend\\app\\services\\converter.py\", line 124, in run_pipeline\n    raise RuntimeError(f\"转换失败: {e}\") from e\nRuntimeError: 转换失败: Unterminated string starting at: line 558 column 22 (char 14566)\n"
+}

@@ -1,0 +1,35 @@
+{
+  "task_id": "ff64c561-44db-4887-8453-0a1f2cbec489",
+  "status": "failed",
+  "progress": 0,
+  "progress_message": "转换失败: 转换失败: argument of type 'NoneType' is not iterable",
+  "script_type": "manju",
+  "mode": "ai",
+  "panel_mode": "simple",
+  "api_key": "sk-a95c592f710e48bdaa6f3f02762fc1fc",
+  "ai_config": {
+    "provider": "deepseek",
+    "api_key": "sk-a95c592f710e48bdaa6f3f02762fc1fc",
+    "model": "deepseek-v4-flash",
+    "base_url": null,
+    "temperature": 0.7,
+    "max_tokens": 8192,
+    "system_prompt": "",
+    "top_p": 1.0
+  },
+  "episode_config": {
+    "enabled": true,
+    "target_episodes": null,
+    "min_duration_seconds": 180,
+    "max_duration_seconds": 300,
+    "hook_style": "cliffhanger",
+    "auto_split": true,
+    "title_template": "第{n}集 {subtitle}",
+    "scene_prefix": ""
+  },
+  "input_path": "E:\\notel\\novel-to-script\\backend\\uploads\\ff64c561-44db-4887-8453-0a1f2cbec489_merged.md",
+  "result_path": null,
+  "error": "转换失败: argument of type 'NoneType' is not iterable",
+  "created_at": 1780733183.8127391,
+  "error_trace": "Traceback (most recent call last):\n  File \"E:\\notel\\novel-to-script\\backend\\app\\services\\converter.py\", line 102, in run_pipeline\n    return generate_script(\n           ^^^^^^^^^^^^^^^^\n  File \"E:\\notel\\novel-to-script\\scripts\\novel_to_script.py\", line 386, in generate_script\n    sequences, scenes = _build_sequences_and_scenes(detection_results, novel, characters, script_type, panel_mode)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\notel\\novel-to-script\\scripts\\novel_to_script.py\", line 535, in _build_sequences_and_scenes\n    if c.name == db.character or db.character in c.aliases:\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: argument of type 'NoneType' is not iterable\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"E:\\notel\\novel-to-script\\backend\\app\\services\\task_runner.py\", line 59, in _run\n    script_doc = run_pipeline(\n                 ^^^^^^^^^^^^^\n  File \"E:\\notel\\novel-to-script\\backend\\app\\services\\converter.py\", line 120, in run_pipeline\n    raise RuntimeError(f\"转换失败: {e}\") from e\nRuntimeError: 转换失败: argument of type 'NoneType' is not iterable\n"
+}

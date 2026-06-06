@@ -212,8 +212,7 @@ function highlightedYaml(text) {
 </script>
 
 <template>
-  <div class="home-view">
-    <!-- ===== 左栏：上传与设置 ===== -->
+  <div class="home-view anim-slide-up">
     <aside class="panel left-panel">
       <div class="panel-title">
         <span class="panel-title-label"><span class="pt-icon" v-html="ICONS.upload" /> 上传与设置</span>
@@ -392,27 +391,27 @@ function highlightedYaml(text) {
 
 /* ---- 面板基类 ---- */
 .panel {
-  background: var(--bg-panel);
+  background: rgba(255,255,255,0.38); backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   display: flex; flex-direction: column; overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.02);
+}
+html.dark .panel {
+  background: rgba(17,22,32,0.50);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.24), 0 1px 4px rgba(0,0,0,0.10);
 }
 
 .panel-title {
   padding: 12px 18px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.01em;
+  font-size: 11px; font-weight: 600;
+  color: var(--text-tertiary); letter-spacing: 0.04em; text-transform: uppercase;
   border-bottom: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-  user-select: none;
-  background: var(--bg-surface);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0; user-select: none;
+  background: rgba(255,255,255,0.20);
 }
+html.dark .panel-title { background: rgba(14,17,25,0.30); }
 
 .panel-scroll {
   flex: 1; overflow-y: auto; padding: 14px;
@@ -441,32 +440,31 @@ function highlightedYaml(text) {
   display: flex; flex-direction: column; gap: 6px;
 }
 .config-group > label {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-tertiary);
   font-weight: 600;
-  letter-spacing: 0.02em;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 4px;
 }
 
 .convert-btn {
-  width: 100%;
-  margin-top: 2px;
-  font-weight: 600;
-  flex-shrink: 0;
-  font-size: 14px;
-  letter-spacing: -0.01em;
+  width: 100%; margin-top: 4px; font-weight: 600; flex-shrink: 0;
+  font-size: 14px; letter-spacing: -0.01em;
+  border-radius: 20px !important;
+  transition: all var(--duration-normal) var(--ease-out);
+  box-shadow: 0 4px 20px rgba(56,189,248,0.15);
 }
+html.dark .convert-btn { box-shadow: 0 4px 24px rgba(56,189,248,0.20); }
+.convert-btn:hover { transform: translateY(-1px); }
+.download-btn { width: 100%; flex-shrink: 0; border-radius: 20px !important; }
 
 /* 进度条 */
 .progress-section {
-  margin-top: 4px;
-  padding: 10px 12px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  margin-top: 4px; padding: 10px 12px;
+  background: rgba(255,255,255,0.20); backdrop-filter: blur(4px);
+  border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
 }
+html.dark .progress-section { background: rgba(14,17,25,0.28); }
 .progress-label {
   font-size: 11px;
   color: var(--text-tertiary);
@@ -483,14 +481,13 @@ function highlightedYaml(text) {
   display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex-shrink: 0;
 }
 .stat-item {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 10px;
-  text-align: center;
-  transition: border-color var(--duration-fast) var(--ease-out);
+  background: rgba(255,255,255,0.20); backdrop-filter: blur(4px);
+  border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+  padding: 10px; text-align: center;
+  transition: all var(--duration-fast) var(--ease-out);
 }
-.stat-item:hover { border-color: var(--border); }
+.stat-item:hover { border-color: var(--accent); transform: translateY(-1px); }
+html.dark .stat-item { background: rgba(14,17,25,0.22); }
 .stat-num {
   display: block;
   font-size: 18px;
@@ -547,23 +544,21 @@ function highlightedYaml(text) {
 /* Tab 切换 */
 .tab-row {
   display: flex;
-  background: var(--bg-card);
-  border-radius: var(--radius-sm);
-  padding: 2px;
-  gap: 1px;
+  background: rgba(0,0,0,0.03);
+  border-radius: 20px;
+  padding: 2px; gap: 1px;
 }
+html.dark .tab-row { background: rgba(255,255,255,0.04); }
 .tab-btn {
-  font-size: 12px;
-  padding: 5px 14px;
-  border: none;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
+  font-size: 12px; padding: 5px 14px; border: none; border-radius: 18px;
+  background: transparent; color: var(--text-tertiary); cursor: pointer;
   transition: all var(--duration-fast) var(--ease-out);
-  font-family: var(--font-sans);
-  font-weight: 500;
-  white-space: nowrap;
+  font-family: var(--font-sans); font-weight: 500; white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text-secondary); }
+.tab-btn.active {
+  background: var(--bg-panel); color: var(--text-primary); font-weight: 600;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
 }
 .tab-btn:hover { color: var(--text-secondary); }
 .tab-btn.active {
