@@ -4,7 +4,6 @@
 
 import json
 import shutil
-import tempfile
 import uuid
 import zipfile
 from pathlib import Path
@@ -16,11 +15,14 @@ from typing import List
 from app.core.config import RESULTS_DIR, UPLOAD_DIR
 from app.models.schemas import AIConfig, ConvertRequest, ConvertResponse, EpisodeConfig, EpisodeSummary, TaskStatusResponse
 from app.services.converter import convert_novel
+from app.services.task_store import store
 
 router = APIRouter(prefix="/api/convert", tags=["convert"])
 
-# 内存中的任务状态存储（适合单用户本地使用）
-_tasks: dict[str, dict] = {}
+# 启动时从磁盘恢复任务
+_recovered = store.load_all()
+if _recovered:
+    print(f"[task-store] 从磁盘恢复 {len(_recovered)} 个任务")
 
 
 def _parse_optional_json(raw: str | None, model_cls):
@@ -109,7 +111,7 @@ async def create_convert_task(
         # 情况 3：多文件 → 合并为一个带章节标记的文本
         input_path = _merge_chapter_files(files, task_id)
 
-    _tasks[task_id] = {
+    store.create(task_id, {
         "task_id": task_id,
         "status": "processing",
         "script_type": script_type,
@@ -121,7 +123,7 @@ async def create_convert_task(
         "input_path": str(input_path),
         "result_path": None,
         "error": None,
-    }
+    })
 
     # 同步执行转换（适合本地单用户使用）
     try:
@@ -158,7 +160,7 @@ async def create_convert_task(
                 for ep in root.episodes
             ]
 
-        _tasks[task_id].update({
+        store.update(task_id, {
             "status": "completed",
             "result_path": str(result_path),
             "total_scenes": root.metadata.total_scenes,
@@ -175,7 +177,7 @@ async def create_convert_task(
         )
 
     except Exception as e:
-        _tasks[task_id].update({
+        store.update(task_id, {
             "status": "failed",
             "error": str(e),
         })
@@ -189,10 +191,10 @@ async def create_convert_task(
 @router.get("/{task_id}", response_model=TaskStatusResponse)
 async def get_task_status(task_id: str):
     """查询任务状态和结果摘要"""
-    if task_id not in _tasks:
+    if not store.exists(task_id):
         raise HTTPException(status_code=404, detail="任务不存在")
 
-    t = _tasks[task_id]
+    t = store.get(task_id)
 
     # 反序列化 episodes（存储时已转为 dict）
     episodes_list = None
@@ -217,10 +219,10 @@ async def get_task_status(task_id: str):
 @router.get("/{task_id}/download")
 async def download_result(task_id: str):
     """下载生成的 YAML 文件"""
-    if task_id not in _tasks:
+    if not store.exists(task_id):
         raise HTTPException(status_code=404, detail="任务不存在")
 
-    t = _tasks[task_id]
+    t = store.get(task_id)
     if t["status"] != "completed":
         raise HTTPException(status_code=400, detail="任务尚未完成")
 
