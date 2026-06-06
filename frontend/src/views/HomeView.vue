@@ -3,7 +3,7 @@
  * HomeView — 三栏布局编排。
  * 状态由 usePersistedConfig composable 集中管理，UI 拆分为子组件。
  */
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { convertFile, getTaskStatus, getDownloadUrl } from '../api/convert.js'
 import { usePersistedConfig } from '../composables/usePersistedConfig.js'
@@ -26,11 +26,14 @@ const fileList    = ref([])   // [{ file, name, size }]
 const loading     = ref(false)
 const taskId      = ref('')
 const status      = ref('')
+const progress    = ref(0)        // 0-100
+const progressMsg = ref('')
 const previewTab  = ref('script')
 const originalYaml = ref('')
 const isDirty     = ref(false)
 const result      = ref(null)
 const yamlText    = ref('')
+let pollTimer     = null
 
 // ---- computed ----
 const stats = computed(() => {
@@ -59,15 +62,17 @@ function onConnectionTested({ models }) {
   if (models?.length) availableModels.value = models
 }
 
-// ---- conversion ----
+// ---- conversion (async + polling) ----
 async function onConvert() {
   if (!fileList.value.length) { ElMessage.warning('请先上传小说文件（至少 1 个）'); return }
 
   loading.value = true
   result.value = null
   yamlText.value = ''
-  status.value = 'processing'
+  progress.value = 0
+  progressMsg.value = '提交任务...'
 
+  // 1) 提交任务 → 后端立即返回 task_id
   try {
     const params = {
       ...config,
@@ -80,27 +85,57 @@ async function onConvert() {
     const res = await convertFile(filesToSend, params)
     taskId.value = res.task_id
 
-    if (res.status === 'completed') {
-      await loadResult(res.task_id)
-      ElMessage.success('转换成功')
-    } else {
-      status.value = 'failed'
-      ElMessage.error(res.message || '转换失败')
-    }
+    // 2) 开始轮询
+    startPolling(res.task_id)
   } catch (err) {
-    status.value = 'failed'
-    ElMessage.error(err.response?.data?.detail || err.message || '请求失败')
-  } finally {
     loading.value = false
+    ElMessage.error(err.response?.data?.detail || err.message || '请求失败')
   }
 }
 
-async function loadResult(id) {
-  const data = await getTaskStatus(id)
+function startPolling(id) {
+  stopPolling()
+  const POLL_MS = 600
+
+  pollTimer = setInterval(async () => {
+    try {
+      const data = await getTaskStatus(id)
+
+      // 更新进度
+      if (data.progress != null) {
+        progress.value = Math.round(data.progress * 100)
+      }
+      progressMsg.value = data.progress_message || ''
+
+      if (data.status === 'completed') {
+        stopPolling()
+        await loadResultData(data)
+        loading.value = false
+        ElMessage.success('转换成功')
+      } else if (data.status === 'failed') {
+        stopPolling()
+        loading.value = false
+        ElMessage.error(data.error || '转换失败')
+      }
+    } catch {
+      // 网络抖动，继续轮询
+    }
+  }, POLL_MS)
+}
+
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null }
+}
+
+onUnmounted(() => stopPolling())
+
+async function loadResultData(data) {
   status.value = data.status
   result.value = data
+  progress.value = 100
+  progressMsg.value = '完成'
   try {
-    const resp = await fetch(getDownloadUrl(id))
+    const resp = await fetch(getDownloadUrl(data.task_id))
     const text = await resp.text()
     yamlText.value = text
     originalYaml.value = text
@@ -195,6 +230,14 @@ function highlightedYaml(text) {
           @click="onConvert" class="convert-btn">
           {{ convertBtnLabel }}
         </el-button>
+
+        <!-- 进度条（后台转换中） -->
+        <div v-if="loading && progress > 0" class="progress-section">
+          <el-progress :percentage="progress" :stroke-width="8"
+            :status="progress === 100 ? 'success' : ''"
+            :color="progress === 100 ? 'var(--success)' : 'var(--accent-cyan)'" />
+          <span class="progress-label">{{ progressMsg }}</span>
+        </div>
 
         <!-- 统计信息 -->
         <div v-if="stats" class="stats-box">
@@ -295,6 +338,8 @@ function highlightedYaml(text) {
 .saved-indicator { font-size: 13px; opacity: 0.6; cursor: help; transition: opacity 0.2s; }
 .saved-indicator:hover { opacity: 1; }
 .convert-btn { width: 100%; margin-top: 4px; font-weight: 600; flex-shrink: 0; }
+.progress-section { margin-top: 8px; }
+.progress-label { font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px; text-align: center; }
 .download-btn { width: 100%; flex-shrink: 0; }
 
 .stats-box { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-shrink: 0; }

@@ -96,6 +96,8 @@ class TaskStatusResponse(BaseModel):
     status: str
     script_type: str
     mode: str
+    progress: Optional[float] = None       # 0.0 – 1.0
+    progress_message: Optional[str] = None  # 当前阶段描述
     total_scenes: Optional[int] = None
     total_beats: Optional[int] = None
     total_episodes: Optional[int] = None

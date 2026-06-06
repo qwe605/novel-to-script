@@ -1,5 +1,8 @@
 """
-转换 API 路由：文件上传、任务提交、状态查询、结果下载。
+转换 API 路由：文件上传、后台任务提交、进度查询、结果下载。
+POST  /api/convert          → 提交后立即返回 task_id，后台线程执行转换
+GET   /api/convert/{id}     → 轮询进度（progress 0-1 + progress_message）
+GET   /api/convert/{id}/download → 下载生成的 YAML
 """
 
 import json
@@ -13,8 +16,9 @@ from fastapi.responses import FileResponse
 from typing import List
 
 from app.core.config import RESULTS_DIR, UPLOAD_DIR
-from app.models.schemas import AIConfig, ConvertRequest, ConvertResponse, EpisodeConfig, EpisodeSummary, TaskStatusResponse
-from app.services.converter import convert_novel
+from app.models.schemas import AIConfig, ConvertResponse, EpisodeConfig, EpisodeSummary, TaskStatusResponse
+from app.services.converter import load_novel
+from app.services.task_runner import run_conversion
 from app.services.task_store import store
 
 router = APIRouter(prefix="/api/convert", tags=["convert"])
@@ -111,81 +115,50 @@ async def create_convert_task(
         # 情况 3：多文件 → 合并为一个带章节标记的文本
         input_path = _merge_chapter_files(files, task_id)
 
+    ai_config_dict = ai_config_obj.model_dump() if ai_config_obj else None
+    episode_config_dict = episode_config_obj.model_dump() if episode_config_obj else None
+
+    # ---- 同步：校验 + 加载小说（快速文件 I/O） ----
+    try:
+        load_novel(Path(input_path))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    # ---- 创建任务（初始状态 processing + progress=0） ----
     store.create(task_id, {
         "task_id": task_id,
         "status": "processing",
+        "progress": 0.0,
+        "progress_message": "排队中...",
         "script_type": script_type,
         "mode": mode,
         "panel_mode": panel_mode,
         "api_key": effective_api_key,
-        "ai_config": ai_config_obj.model_dump() if ai_config_obj else None,
-        "episode_config": episode_config_obj.model_dump() if episode_config_obj else None,
+        "ai_config": ai_config_dict,
+        "episode_config": episode_config_dict,
         "input_path": str(input_path),
         "result_path": None,
         "error": None,
     })
 
-    # 同步执行转换（适合本地单用户使用）
-    try:
-        script_doc = convert_novel(
-            input_path=Path(input_path),
-            script_type=script_type,
-            mode=mode,
-            panel_mode=panel_mode,
-            api_key=effective_api_key,
-            ai_config=ai_config_obj.model_dump() if ai_config_obj else None,
-            episode_config=episode_config_obj.model_dump() if episode_config_obj else None,
-        )
+    # ---- 异步：后台线程执行转换（带进度回调） ----
+    run_conversion(
+        task_id,
+        input_path=Path(input_path),
+        script_type=script_type,
+        mode=mode,
+        panel_mode=panel_mode,
+        api_key=effective_api_key,
+        ai_config=ai_config_dict,
+        episode_config=episode_config_dict,
+        results_dir=RESULTS_DIR,
+    )
 
-        # 保存结果 YAML
-        result_path = RESULTS_DIR / f"{task_id}_剧本.yaml"
-        script_doc.save(result_path)
-
-        root = script_doc.script
-
-        # 构建集摘要列表
-        episodes_summary = None
-        if root.episodes:
-            episodes_summary = [
-                EpisodeSummary(
-                    episode_id=ep.episode_id,
-                    episode_number=ep.episode_number,
-                    title=ep.title,
-                    hook=ep.hook,
-                    target_duration_seconds=ep.target_duration_seconds,
-                    source_chapters=ep.source_chapters,
-                    scenes=ep.scenes,
-                    scene_count=len(ep.scenes),
-                ).model_dump()
-                for ep in root.episodes
-            ]
-
-        store.update(task_id, {
-            "status": "completed",
-            "result_path": str(result_path),
-            "total_scenes": root.metadata.total_scenes,
-            "total_beats": root.metadata.total_beats,
-            "total_episodes": root.metadata.total_episodes,
-            "estimated_duration_minutes": root.metadata.estimated_duration_minutes,
-            "episodes": episodes_summary,
-        })
-
-        return ConvertResponse(
-            task_id=task_id,
-            status="completed",
-            message="转换成功",
-        )
-
-    except Exception as e:
-        store.update(task_id, {
-            "status": "failed",
-            "error": str(e),
-        })
-        return ConvertResponse(
-            task_id=task_id,
-            status="failed",
-            message=str(e),
-        )
+    return ConvertResponse(
+        task_id=task_id,
+        status="processing",
+        message="任务已提交，后台处理中",
+    )
 
 
 @router.get("/{task_id}", response_model=TaskStatusResponse)
@@ -206,6 +179,8 @@ async def get_task_status(task_id: str):
         status=t["status"],
         script_type=t["script_type"],
         mode=t["mode"],
+        progress=t.get("progress"),
+        progress_message=t.get("progress_message"),
         total_scenes=t.get("total_scenes"),
         total_beats=t.get("total_beats"),
         total_episodes=t.get("total_episodes"),

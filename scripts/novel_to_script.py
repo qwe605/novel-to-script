@@ -23,7 +23,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import cast
+from typing import Callable, cast
 
 from novel_parser import NovelTextParser, NotelProjectParser, ParsedNovel
 from scene_detector import detect_scenes
@@ -333,6 +333,7 @@ def generate_script(
     max_tokens: int = 4096,
     episode_config: dict | None = None,
     verbose: bool = True,
+    on_progress: "Callable[[str, float], None] | None" = None,
 ) -> ScriptDocument:
     """
     核心转换流程：小说 → 剧本。
@@ -344,15 +345,24 @@ def generate_script(
         api_key: AI 模式专用 API Key（也可通过环境变量）
         panel_mode: 漫剧画面粒度 (simple/detailed)
         provider/model/base_url/temperature/max_tokens: AI 提供商配置
-        episode_config: 分集配置 dict，字段见 EpisodeConfig schema
+        episode_config: 分集配置 dict
         verbose: 是否打印进度信息（CLI=True, Web=False）
+        on_progress: 进度回调 (phase: str, progress: float 0-1) — Web 端用于轮询
     """
+    def _progress(phase: str, pct: float):
+        if on_progress:
+            on_progress(phase, pct)
+        if verbose:
+            print(f"       [{pct:.0%}] {phase}")
+
+    _progress("加载小说", 0.05)
     if verbose:
         print(f"[1/4] 加载小说: {novel.title} ({len(novel.chapters)} 章)")
 
     # 1. 场景检测（传入完整 AI 配置）
     if verbose:
         print(f"[2/4] 场景检测（模式: {mode}）...")
+    _progress("场景检测", 0.10)
     detection_results = detect_scenes(
         novel,
         mode=mode,
@@ -368,12 +378,15 @@ def generate_script(
         print(f"       检测到 {total_scenes} 个场景")
 
     # 2. 构建角色表
+    _progress("构建角色表", 0.50)
     characters = _build_characters(novel)
 
     # 3. 构建 Sequence 和 Scene
+    _progress("构建场景结构", 0.60)
     sequences, scenes = _build_sequences_and_scenes(detection_results, novel, characters, script_type, panel_mode)
 
     # 4. 漫剧：集数规划（支持 episode_config）
+    _progress("场景结构完成", 0.75)
     episodes = None
     if script_type == "manju":
         ep_cfg = episode_config or {}
@@ -382,6 +395,7 @@ def generate_script(
                 min_m = (ep_cfg.get("min_duration_seconds") or MANJU_DEFAULT_MIN) // 60
                 max_m = (ep_cfg.get("max_duration_seconds") or MANJU_DEFAULT_MAX) // 60
                 print(f"[3/4] 漫剧集数规划...")
+            _progress("规划集数", 0.80)
             episodes = plan_episodes(
                 scenes,
                 min_duration=ep_cfg.get("min_duration_seconds", MANJU_DEFAULT_MIN),
@@ -426,6 +440,7 @@ def generate_script(
     suffix = f", {len(episodes)} 集" if episodes else ""
     if verbose:
         print(f"[4/4] 构建完成: {len(scenes)} 场景, {total_beats} 节拍{suffix}")
+    _progress("保存结果", 0.95)
     return ScriptDocument(script=script_root)
 
 
