@@ -11,6 +11,58 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
+# 中文章节序号 → 数字
+_ZH_NUMS: dict[str, int] = {
+    "一": 1, "二": 2, "三": 3, "四": 4, "五": 5,
+    "六": 6, "七": 7, "八": 8, "九": 9, "十": 10,
+    "十一": 11, "十二": 12, "十三": 13, "十四": 14,
+    "十五": 15, "十六": 16, "十七": 17, "十八": 18,
+    "十九": 19, "二十": 20, "二十一": 21, "二十二": 22,
+    "二十三": 23, "二十四": 24, "二十五": 25,
+    "二十六": 26, "二十七": 27, "二十八": 28,
+    "二十九": 29, "三十": 30,
+    "三十一":31,"三十二":32,"三十三":33,"三十四":34,"三十五":35,
+    "三十六":36,"三十七":37,"三十八":38,"三十九":39,"四十":40,
+    "四十一":41,"四十二":42,"四十三":43,"四十四":44,"四十五":45,
+    "四十六":46,"四十七":47,"四十八":48,"四十九":49,"五十":50,
+}
+# 补充 0-9，百位模式用正则处理
+for i in range(10):
+    _ZH_NUMS[str(i)] = i
+
+
+def _parse_zh_num(s: str) -> int | None:
+    """解析中文章节号 → 数字。'## 第一章' → 1, '第30章' → 30, '第一百二十章' → 120"""
+    m = re.search(r"第\s*([\d零一二三四五六七八九十百千万]+)\s*章", s)
+    if not m:
+        return None
+    raw = m.group(1)
+    # 纯数字
+    if raw.isdigit():
+        return int(raw)
+    # 中文数字 — 片付け
+    result = 0
+    current = 0
+    for ch in raw:
+        if ch in _ZH_NUMS:
+            current = _ZH_NUMS[ch]
+        elif ch == "十":
+            current = current * 10 if current else 10
+        elif ch == "百":
+            current = (current or 1) * 100
+            result += current
+            current = 0
+        elif ch == "千":
+            current = (current or 1) * 1000
+            result += current
+            current = 0
+        elif ch == "万":
+            current = (current or 1) * 10000
+            result += current
+            current = 0
+    result += current
+    return result if result > 0 else None
+
 
 # =============================================================================
 # 数据结构
@@ -87,6 +139,10 @@ class NovelTextParser:
         (r"^第\s*(\d+)\s*章\s*(.*)$", "zh_chapter2"),      # 第1章 标题
         (r"^Chapter\s+(\d+)[:. ]\s*(.*)$", "en_chapter"),  # Chapter 1: Title
     ]
+    # 通用章节头 — 阿拉伯数字 + 中文数字，统一捕获第X章
+    HASH_CHAPTER_RE = re.compile(
+        r"^##?\s*第\s*([\d零一二三四五六七八九十百千万]+)\s*章\s*(.*)$", re.MULTILINE
+    )
 
     def parse_file(self, path: Path | str) -> list[Chapter]:
         """从文件解析章节列表，自动处理编码错误"""
@@ -117,12 +173,17 @@ class NovelTextParser:
         # 统一换行符
         text = text.replace("\r\n", "\n").replace("\r", "\n")
 
-        # 尝试每种分隔符模式
+        # Step 1: 尝试数字章节分隔符
         for pattern, pattern_name in self.DELIMITER_PATTERNS:
             chapters = self._try_split(text, pattern)
             if len(chapters) >= 1:
                 if len(chapters) > 1 or chapters[0].number != 0:
                     return [ch for ch in chapters if ch.content.strip()]
+
+        # Step 2: 尝试 ## 第N章（阿拉伯+中文数字混合）
+        chapters = self._try_split_zh(text)
+        if len(chapters) >= 2:
+            return [ch for ch in chapters if ch.content.strip()]
 
         # 兜底：没有分隔符时，整段文本作为第 1 章
         text = text.strip()
@@ -153,6 +214,27 @@ class NovelTextParser:
                 continue
             chapters.append(Chapter(number=number, title=title, content=content))
 
+        return chapters
+
+    def _try_split_zh(self, text: str) -> list[Chapter]:
+        """用 ## 第N章 切分，支持阿拉伯数字和中文数字混排"""
+        matches = list(self.HASH_CHAPTER_RE.finditer(text))
+        if len(matches) < 2:
+            # 单章不切
+            return []
+
+        chapters: list[Chapter] = []
+        for i, match in enumerate(matches):
+            num = _parse_zh_num(match.group(0))
+            if num is None or num <= 0 or num > 10000:
+                continue
+            title = match.group(2).strip() if match.group(2) else None
+            start = match.end()
+            end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+            content = text[start:end].strip()
+            if not content:
+                continue
+            chapters.append(Chapter(number=num, title=title, content=content))
         return chapters
 
 
