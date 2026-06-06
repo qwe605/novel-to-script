@@ -5,7 +5,7 @@
  */
 import { ref, computed, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { convertFile, getTaskStatus, getDownloadUrl } from '../api/convert.js'
+import { convertFile, getTaskStatus, getDownloadUrl, getDemoNovel } from '../api/convert.js'
 import { usePersistedConfig } from '../composables/usePersistedConfig.js'
 import ScriptPreview from '../components/ScriptPreview.vue'
 import StoryboardView from '../components/StoryboardView.vue'
@@ -129,6 +129,19 @@ function stopPolling() {
 
 onUnmounted(() => stopPolling())
 
+// ---- Load Demo ----
+async function loadDemo() {
+  try {
+    const text = await getDemoNovel()
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+    const file = new File([blob], 'demo_novel.md', { type: 'text/plain' })
+    fileList.value = [{ file, name: 'demo_novel.md (示例)', size: blob.size }]
+    ElMessage.success('已加载示例小说（3章），可直接点击转换')
+  } catch {
+    ElMessage.warning('加载示例失败，请检查后端是否运行')
+  }
+}
+
 async function loadResultData(data) {
   status.value = data.status
   result.value = data
@@ -185,6 +198,9 @@ function highlightedYaml(text) {
       <div class="panel-scroll">
         <!-- 文件上传 -->
         <FileUploader v-model="fileList" />
+        <el-button v-if="!fileList.length" size="small" text @click="loadDemo" style="margin-top:-8px">
+          🎲 加载示例小说（3章）
+        </el-button>
 
         <!-- 剧本类型 -->
         <div class="config-group">

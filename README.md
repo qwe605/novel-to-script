@@ -24,7 +24,17 @@
 
 ## 快速开始
 
-### 1. 安装依赖
+### Docker 一键启动（推荐）
+
+```bash
+git clone https://github.com/qwe605/novel-to-script.git
+cd novel-to-script
+docker compose up -d
+```
+
+打开 http://localhost:5173 ，点击 **🎲 加载示例小说** → **🚀 开始转换**，30 秒内看到结果。
+
+### 本地开发
 
 ```bash
 cd novel-to-script/scripts
@@ -108,6 +118,30 @@ Skill 会自动：
 3. 调用 `script-converter` Agent 进行 AI 深度转换
 4. **漫剧模式下自动规划集数**，生成每集悬念钩子
 5. 将 YAML 剧本落盘到 `{书名}/剧本/` 目录
+
+---
+
+## 演示流程
+
+1. 打开前端 → 点击 **🎲 加载示例小说（3章）** 或上传自己的小说文件
+2. 选择剧本类型（默认：网文漫剧）→ 点击 **🚀 开始转换**
+3. 实时查看进度条，转换完成后自动展示：
+   - **剧本预览**：场景/节拍卡片，点击展开编辑对白
+   - **分镜预览**（漫剧）：按集筛选，景别/特效可视化
+   - **YAML 源码**：语法高亮，可直接编辑后下载
+4. 点击 **⬇️ 下载 YAML** 导出编辑后的剧本
+
+---
+
+## 运行测试
+
+```bash
+cd scripts
+pip install pytest
+python -m pytest tests/ -v
+```
+
+当前覆盖 59 个测试用例：YAML Schema 校验、集数规划算法、小说解析器。
 
 ---
 

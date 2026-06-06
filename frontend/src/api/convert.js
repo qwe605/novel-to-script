@@ -58,6 +58,12 @@ export async function getProviders() {
   return res.data
 }
 
+/** 获取示例小说文本（3 章 demo） */
+export async function getDemoNovel() {
+  const res = await client.get('/api/demo')
+  return res.data
+}
+
 /** 测试提供商连通性 + 拉取可用模型 */
 export async function testProvider(params) {
   const res = await client.post('/api/providers/test', params)
