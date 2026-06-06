@@ -1,0 +1,32 @@
+# Dependencies
+**/node_modules
+**/__pycache__
+**/.venv
+**/venv
+
+# Build output
+**/dist
+**/.vite
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Runtime data
+backend/uploads
+backend/results
+backend/tasks
+
+# Python cache
+**/*.pyc
+**/*.py[cod]
+**/*$py.class

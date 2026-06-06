@@ -1,0 +1,39 @@
+# Novel-to-Script 一键启动
+#   docker compose up -d
+#   前端: http://localhost:5173
+#   后端: http://localhost:8000  (Swagger UI: http://localhost:8000/docs)
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: nts-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+      - DEFAULT_AI_PROVIDER=${DEFAULT_AI_PROVIDER:-deepseek}
+      - DEFAULT_AI_API_KEY=${DEFAULT_AI_API_KEY:-}
+      - DEFAULT_AI_MODEL=${DEFAULT_AI_MODEL:-deepseek-chat}
+    volumes:
+      - nts_data:/app/backend/uploads
+      - nts_data:/app/backend/results
+      - nts_data:/app/backend/tasks
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    container_name: nts-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_TARGET=http://backend:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  nts_data:
