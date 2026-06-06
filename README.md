@@ -4,7 +4,7 @@
 
 将网文小说自动转换为结构化剧本（YAML 格式），支持按集组织（每集 3-5 分钟）、自动规划集数、生成悬念钩子（卡点）。兼容 [notel](https://github.com/worldwonderer/oh-story-claudecode) 网文写作项目结构，也支持任意文本文件输入。
 
-> **在线体验**: [novel-to-script-indol.vercel.app](https://novel-to-script-indol.vercel.app)
+> **在线体验**: [novel-to-script-pg8e0hej9-qwe605s-projects.vercel.app](https://novel-to-script-pg8e0hej9-qwe605s-projects.vercel.app)
 
 ---
 
@@ -143,7 +143,7 @@ pip install pytest
 python -m pytest tests/ -v
 ```
 
-当前覆盖 59 个测试用例：YAML Schema 校验、集数规划算法、小说解析器。
+覆盖 70 个测试用例：YAML Schema 校验、集数规划算法、小说解析器、API 集成测试。
 
 ---
 
@@ -160,26 +160,17 @@ novel-to-script/
 │   ├── scene_detector.py        # 场景检测引擎（规则 + AI 双模）
 │   ├── yaml_exporter.py         # YAML 序列化与 Pydantic 校验（含 Episode/ManjuExtensions）
 │   └── requirements.txt
-├── references/                  # 【专业提示词】直接复用自超无穹大师 skill
+├── references/                  # 编剧/导演专业提示词参考
 │   ├── screenwriting-master-SKILL.md   # 编剧铁律、戏剧动作、潜台词、双轨节奏、自检体系
 │   ├── director-master-SKILL.md        # 导演五步工作流、叙事目的分析法、镜头设计逻辑
-│   ├── shot-design.md                  # 动作-反应单元（12种变体）、切镜逻辑、对白场景处理、70/30出彩配比
-│   ├── core-methodology.md             # 叙事目的分析法、六维定调、节奏规划
-│   ├── storyboard-format.md            # 九列分镜格式、时长估算（551镜头统计）
-│   ├── screenwriting-master-brain.js   # 格式路由、选题路径、写作红线检查（决策引擎）
-│   ├── director-master-brain.js        # 六维度检测、镜头组类型判断、景别推荐（决策引擎）
-│   ├── genre-A-mood.md                 # 六维定调-A：情绪基调与风格（8个子类）
-│   ├── genre-B-genre.md                # 六维定调-B：类型片（8个子类）
-│   ├── genre-C-action.md               # 六维定调-C：动作与对抗（4个子类）
-│   ├── genre-D-theme.md                # 六维定调-D：题材与关系（6个子类）
-│   ├── genre-E-form.md                 # 六维定调-E：形式与叙事手法（5个子类）
-│   └── genre-F-social.md               # 六维定调-F：社会视角（4个子类+附录）
+│   └── ...
 ├── examples/
 │   ├── demo_manju.yaml          # 【漫剧示例】用现有小说前3章生成（3集）
 │   ├── demo_screenplay.yaml     # 影视剧本示例
 │   ├── demo_audio_drama.yaml    # 广播剧示例
 │   └── demo_stage_play.yaml     # 舞台剧示例
-└── README.md
+├── docs/
+│   └── demo-script.md            # 演示视频脚本
 ```
 
 ---
@@ -249,20 +240,3 @@ script:
 | `PARTICLE` | 粒子特效 | 浪漫场景（花瓣/雪花） |
 | `COLOR_INVERT` | 颜色反相 | 诡异氛围 |
 
----
-
-## 与现有工具的关系
-
-本工具是 notel 网文写作工具集的扩展，与以下现有模块协同工作：
-
-| 模块 | 关系 |
-|------|------|
-| `chaowuqiong-screenwriting-master/` | 本工具的 screenplay 输出可直接进入编剧大师的"剧本医生"步骤打磨 |
-| `chaowuqiong-director-master/` | 本工具的 screenplay YAML 可作为导演大师的分镜拆解输入 |
-| `story-setup/` | 共享 `.claude/agents/` 和 `.claude/rules/` 基础设施 |
-
----
-
-## 许可证
-
-与 notel 主项目一致。

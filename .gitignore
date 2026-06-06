@@ -36,3 +36,6 @@ backend/results/
 *$py.class
 backend/tasks/
 .vercel
+
+# Demo video (too large for git)
+video/
