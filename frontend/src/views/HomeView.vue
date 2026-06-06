@@ -37,12 +37,13 @@ const previewTab = ref('script') // 'script' | 'storyboard' | 'yaml'
 const originalYaml = ref('')       // 转换完成时的原始 YAML（用于对比是否被编辑过）
 const isDirty = ref(false)         // 是否已被用户修改过
 
-// 提供商列表（初始默认值，后端加载后覆盖）
+// 提供商列表（挂载时从 /api/providers 加载；此处仅为 API 不可用时的 fallback）
+// ⚠️ CANONICAL: backend/app/core/config.py → PROVIDER_CONFIGS
 const providerList = ref([
   { key: 'deepseek',   name: 'DeepSeek',   default_base_url: 'https://api.deepseek.com',        default_model: 'deepseek-chat',          known_models: ['deepseek-chat','deepseek-reasoner'], api_type: 'openai_compatible' },
-  { key: 'anthropic',  name: 'Anthropic',  default_base_url: 'https://api.anthropic.com',        default_model: 'claude-sonnet-4-6',       known_models: ['claude-sonnet-4-6','claude-opus-4-8','claude-haiku-4-5'], api_type: 'anthropic' },
-  { key: 'openai',     name: 'OpenAI',     default_base_url: 'https://api.openai.com/v1',        default_model: 'gpt-4o',                  known_models: ['gpt-4o','gpt-4.1','gpt-4o-mini'], api_type: 'openai_compatible' },
-  { key: 'openrouter', name: 'OpenRouter', default_base_url: 'https://openrouter.ai/api/v1',     default_model: 'openai/gpt-4o',           known_models: ['openai/gpt-4o','anthropic/claude-sonnet-4-6'], api_type: 'openai_compatible' },
+  { key: 'anthropic',  name: 'Anthropic',  default_base_url: 'https://api.anthropic.com',        default_model: 'claude-sonnet-4-6',       known_models: ['claude-sonnet-4-6','claude-opus-4-8','claude-opus-4-7','claude-haiku-4-5','claude-sonnet-4-5'], api_type: 'anthropic' },
+  { key: 'openai',     name: 'OpenAI',     default_base_url: 'https://api.openai.com/v1',        default_model: 'gpt-4o',                  known_models: ['gpt-4o','gpt-4.1','gpt-4o-mini','gpt-4-turbo','o4-mini'], api_type: 'openai_compatible' },
+  { key: 'openrouter', name: 'OpenRouter', default_base_url: 'https://openrouter.ai/api/v1',     default_model: 'openai/gpt-4o',           known_models: ['openai/gpt-4o','anthropic/claude-sonnet-4-6','anthropic/claude-opus-4-8','google/gemini-2.5-pro','meta-llama/llama-4-maverick'], api_type: 'openai_compatible' },
   { key: 'custom',     name: '自定义',     default_base_url: 'http://localhost:11434/v1',        default_model: 'llama3',                  known_models: [], api_type: 'openai_compatible' },
 ])
 

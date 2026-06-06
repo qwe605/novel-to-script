@@ -132,6 +132,7 @@ async def create_convert_task(
             panel_mode=panel_mode,
             api_key=effective_api_key,
             ai_config=ai_config_obj.model_dump() if ai_config_obj else None,
+            episode_config=episode_config_obj.model_dump() if episode_config_obj else None,
         )
 
         # 保存结果 YAML

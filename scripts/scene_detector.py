@@ -356,6 +356,9 @@ class AIStudioSceneDetector:
     """
 
     # 提供商默认配置
+    # ⚠️ CANONICAL SOURCE: backend/app/core/config.py → PROVIDER_CONFIGS
+    # 此处的 base_url / default_model / api_type / env_key 必须与 canonical 一致。
+    # model 列表不在此处维护（仅 backend API 对外暴露）。
     PROVIDER_DEFAULTS: dict[str, dict] = {
         "anthropic": {
             "base_url": "https://api.anthropic.com",

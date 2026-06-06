@@ -37,7 +37,12 @@ DEFAULT_AI_MODEL = os.getenv("DEFAULT_AI_MODEL", "deepseek-chat")
 # 默认 base URL（可选，留空则使用各 provider 内置默认值）
 DEFAULT_AI_BASE_URL = os.getenv("DEFAULT_AI_BASE_URL", "")
 
-# ========== 提供商内置配置 ==========
+# =============================================================================
+# 提供商内置配置（CANONICAL SOURCE）
+# 此处是 AI provider 配置的唯一事实来源。
+# scripts/scene_detector.py 的 PROVIDER_DEFAULTS 和前端 fallback 必须与此处一致。
+# 新增/修改 provider 时只需改此处；前端启动时自动从 /api/providers 拉取。
+# =============================================================================
 
 PROVIDER_CONFIGS: dict[str, dict] = {
     "anthropic": {

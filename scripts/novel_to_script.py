@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+from typing import cast
 
 from novel_parser import NovelTextParser, NotelProjectParser, ParsedNovel
 from scene_detector import detect_scenes
@@ -31,12 +32,15 @@ from yaml_exporter import (
     BeatExtensions,
     Character,
     Episode,
+    IntExt,
     ManjuExtensions,
     Metadata,
     Scene,
     SceneHeading,
+    SceneType,
     ScriptDocument,
     ScriptRoot,
+    ScriptType,
     Sequence,
     validate_yaml_file,
 )
@@ -46,23 +50,79 @@ from yaml_exporter import (
 # 集数自动规划算法（漫剧专用）
 # =============================================================================
 
-MANJU_TARGET_DURATION_SECONDS = 240  # 默认每集目标 4 分钟
-MANJU_MIN_DURATION_SECONDS = 180     # 每集最少 3 分钟
-MANJU_MAX_DURATION_SECONDS = 300     # 每集最多 5 分钟
+# =============================================================================
+# 集数自动规划算法（漫剧专用）—— 默认值
+# =============================================================================
+
+MANJU_DEFAULT_MIN = 180    # 每集最少 3 分钟
+MANJU_DEFAULT_MAX = 300    # 每集最多 5 分钟
+MANJU_DEFAULT_TARGET = 240 # 默认每集目标 4 分钟
+
+# 钩子风格 → UI 标签
+_HOOK_STYLE_LABELS: dict[str, str] = {
+    "cliffhanger": "悬念卡点",
+    "twist":       "反转时刻",
+    "emotional":   "情感钩子",
+    "suspense":    "悬疑卡点",
+    "action":      "行动卡点",
+}
 
 
-def plan_episodes(scenes: list[Scene]) -> list[Episode]:
+def plan_episodes(
+    scenes: list[Scene],
+    min_duration: int = MANJU_DEFAULT_MIN,
+    max_duration: int = MANJU_DEFAULT_MAX,
+    target_episodes: int | None = None,
+    hook_style: str = "cliffhanger",
+    title_template: str = "第{n}集",
+    auto_split: bool = True,
+) -> list[Episode]:
     """
     将场景列表自动规划为漫剧集数。
 
-    策略：
-    1. 按 scene 顺序累加时长
-    2. 当累计时长达到目标区间 [3min, 5min] 时，尝试在此处切分
-    3. 优先在 scene 边界切分，不在 scene 中间切分
-    4. 每集必须包含至少 1 个 scene
+    参数:
+        min_duration: 每集最短秒数（默认 180）
+        max_duration: 每集最长秒数（默认 300）
+        target_episodes: 目标总集数（None=自动按时长切分）
+        hook_style: 钩子风格（cliffhanger/twist/emotional/suspense/action）
+        title_template: 集标题模板，支持 {n} {subtitle} {pause}
+        auto_split: False 时所有场景合并为一集
+
+    策略:
+        1. 如果 auto_split=False，所有场景入一集
+        2. 如果指定 target_episodes，按 (总时长/目标集数) 作为分割阈值
+        3. 否则按固定时长窗口逐场景累加切分
+        4. 优先在 scene 边界切分，不在 scene 中间切分
     """
     if not scenes:
         return []
+
+    # 不自动切分：所有场景合并为一集
+    if not auto_split:
+        total_duration = sum(s.estimated_duration_seconds or 60 for s in scenes)
+        source_chapters: set[int] = set()
+        for s in scenes:
+            if s.source_chapters:
+                source_chapters.update(s.source_chapters)
+        ep = Episode(
+            episode_id="ep_01",
+            episode_number=1,
+            title=_format_title(title_template, 1, ""),
+            hook=_generate_hook_text(scenes, [s.scene_id for s in scenes], hook_style),
+            target_duration_seconds=min(max(total_duration, min_duration), max_duration),
+            source_chapters=sorted(source_chapters) if source_chapters else None,
+            scenes=[s.scene_id for s in scenes],
+        )
+        return [ep]
+
+    # 计算目标分割阈值
+    total_duration = sum(s.estimated_duration_seconds or 60 for s in scenes)
+    if target_episodes and target_episodes > 0:
+        target_per_ep = total_duration / target_episodes
+        # 钳制到 [min, max] 范围内
+        target_per_ep = max(min_duration, min(max_duration, target_per_ep))
+    else:
+        target_per_ep = MANJU_DEFAULT_TARGET
 
     episodes: list[Episode] = []
     current_scenes: list[str] = []
@@ -77,19 +137,19 @@ def plan_episodes(scenes: list[Scene]) -> list[Episode]:
         should_split = False
         if current_scenes:
             # 如果加入当前 scene 后超过最大时长，必须切分
-            if would_be > MANJU_MAX_DURATION_SECONDS:
+            if would_be > max_duration:
                 should_split = True
-            # 如果已经达到目标时长区间，且当前 scene 是一个合理的切分点
-            elif current_duration >= MANJU_TARGET_DURATION_SECONDS:
+            # 如果已经达到目标时长，切分
+            elif current_duration >= target_per_ep:
                 should_split = True
-            # 特殊：如果当前 scene 是 transition/montage 类型，适合作为集末过渡
-            elif scene.type in ("transition", "montage") and current_duration >= MANJU_MIN_DURATION_SECONDS:
+            # 特殊：transition/montage 类型适合作为集末过渡
+            elif scene.type in ("transition", "montage") and current_duration >= min_duration:
                 should_split = True
 
         if should_split:
             # 保存当前集
             ep_number += 1
-            episodes.append(_build_episode(ep_number, current_scenes, scenes))
+            episodes.append(_build_episode(ep_number, current_scenes, scenes, hook_style, title_template))
             current_scenes = [scene.scene_id]
             current_duration = sc_duration
         else:
@@ -99,13 +159,19 @@ def plan_episodes(scenes: list[Scene]) -> list[Episode]:
     # 最后一集
     if current_scenes:
         ep_number += 1
-        episodes.append(_build_episode(ep_number, current_scenes, scenes))
+        episodes.append(_build_episode(ep_number, current_scenes, scenes, hook_style, title_template))
 
     return episodes
 
 
-def _build_episode(ep_number: int, scene_ids: list[str], all_scenes: list[Scene]) -> Episode:
-    """构建单集对象"""
+def _build_episode(
+    ep_number: int,
+    scene_ids: list[str],
+    all_scenes: list[Scene],
+    hook_style: str = "cliffhanger",
+    title_template: str = "第{n}集",
+) -> Episode:
+    """构建单集对象（支持标题模板和钩子风格）"""
     # 计算集时长
     duration = sum(
         sc.estimated_duration_seconds or 60
@@ -119,29 +185,58 @@ def _build_episode(ep_number: int, scene_ids: list[str], all_scenes: list[Scene]
         if sc.scene_id in scene_ids and sc.source_chapters:
             source_chapters.update(sc.source_chapters)
 
-    # 生成 hook：取最后一幕的情绪或最后一个 beat 的内容作为钩子提示
-    hook = ""
-    for sc in reversed(all_scenes):
+    # 生成 hook
+    hook = _generate_hook_text(all_scenes, scene_ids, hook_style)
+
+    # 从首个场景提取字幕（用于标题模板）
+    subtitle = ""
+    for sc in all_scenes:
         if sc.scene_id in scene_ids:
             if sc.mood:
-                hook = f"{sc.mood} — 待设计悬念卡点"
+                subtitle = sc.mood.split("→")[0].strip()[:8]
             elif sc.beats:
-                last_beat = sc.beats[-1]
-                if last_beat.type == "dialogue":
-                    hook = f"台词卡点：'{last_beat.content[:20]}...'"
-                else:
-                    hook = f"动作卡点：'{last_beat.content[:20]}...'"
+                subtitle = sc.beats[0].content[:8]
             break
+
+    title = _format_title(title_template, ep_number, subtitle)
 
     return Episode(
         episode_id=f"ep_{ep_number:02d}",
         episode_number=ep_number,
-        title=f"第{ep_number}集",
+        title=title,
         hook=hook or "待设计悬念钩子",
-        target_duration_seconds=min(max(duration, MANJU_MIN_DURATION_SECONDS), MANJU_MAX_DURATION_SECONDS),
+        target_duration_seconds=min(max(duration, MANJU_DEFAULT_MIN), MANJU_DEFAULT_MAX),
         source_chapters=sorted(source_chapters) if source_chapters else None,
         scenes=scene_ids,
     )
+
+
+def _generate_hook_text(
+    all_scenes: list[Scene],
+    scene_ids: list[str],
+    hook_style: str,
+) -> str:
+    """根据钩子风格生成集末卡点文本"""
+    label = _HOOK_STYLE_LABELS.get(hook_style, "悬念卡点")
+
+    for sc in reversed(all_scenes):
+        if sc.scene_id in scene_ids:
+            if sc.mood:
+                return f"{label}：{sc.mood} — 待设计"
+            elif sc.beats:
+                last_beat = sc.beats[-1]
+                prefix = "台词" if last_beat.type == "dialogue" else "动作"
+                return f"{label}：{prefix}卡点 '{last_beat.content[:20]}...'"
+            break
+    return f"{label}：待设计"
+
+
+def _format_title(title_template: str, n: int, subtitle: str) -> str:
+    """格式化集标题模板，支持 {n} {subtitle} {pause}"""
+    result = title_template.replace("{n}", str(n))
+    result = result.replace("{subtitle}", subtitle)
+    result = result.replace("{pause}", "·")
+    return result
 
 
 # =============================================================================
@@ -231,15 +326,46 @@ def generate_script(
     mode: str,
     api_key: str | None,
     panel_mode: str = "simple",
+    provider: str = "deepseek",
+    model: str | None = None,
+    base_url: str | None = None,
+    temperature: float = 0.7,
+    max_tokens: int = 4096,
+    episode_config: dict | None = None,
+    verbose: bool = True,
 ) -> ScriptDocument:
-    """核心转换流程：小说 -> 剧本"""
-    print(f"[1/4] 加载小说: {novel.title} ({len(novel.chapters)} 章)")
+    """
+    核心转换流程：小说 → 剧本。
 
-    # 1. 场景检测
-    print(f"[2/4] 场景检测（模式: {mode}）...")
-    detection_results = detect_scenes(novel, mode=mode, api_key=api_key)
+    参数:
+        novel: 解析后的小说对象
+        script_type: 剧本类型 (manju/screenplay/audio_drama/stage_play)
+        mode: 检测模式 (rule/ai)
+        api_key: AI 模式专用 API Key（也可通过环境变量）
+        panel_mode: 漫剧画面粒度 (simple/detailed)
+        provider/model/base_url/temperature/max_tokens: AI 提供商配置
+        episode_config: 分集配置 dict，字段见 EpisodeConfig schema
+        verbose: 是否打印进度信息（CLI=True, Web=False）
+    """
+    if verbose:
+        print(f"[1/4] 加载小说: {novel.title} ({len(novel.chapters)} 章)")
+
+    # 1. 场景检测（传入完整 AI 配置）
+    if verbose:
+        print(f"[2/4] 场景检测（模式: {mode}）...")
+    detection_results = detect_scenes(
+        novel,
+        mode=mode,
+        api_key=api_key,
+        provider=provider,
+        model=model,
+        base_url=base_url,
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
     total_scenes = sum(len(r.scenes) for r in detection_results)
-    print(f"       检测到 {total_scenes} 个场景")
+    if verbose:
+        print(f"       检测到 {total_scenes} 个场景")
 
     # 2. 构建角色表
     characters = _build_characters(novel)
@@ -247,15 +373,29 @@ def generate_script(
     # 3. 构建 Sequence 和 Scene
     sequences, scenes = _build_sequences_and_scenes(detection_results, novel, characters, script_type, panel_mode)
 
-    # 4. 漫剧：自动规划集数
+    # 4. 漫剧：集数规划（支持 episode_config）
     episodes = None
     if script_type == "manju":
-        print("[3/4] 漫剧集数规划...")
-        episodes = plan_episodes(scenes)
-        print(f"       规划为 {len(episodes)} 集（目标每集 3-5 分钟）")
-        for ep in episodes:
-            print(f"         {ep.episode_id}: {len(ep.scenes)} 场景, "
-                  f"目标 {ep.target_duration_seconds}s, 来源章节: {ep.source_chapters}")
+        ep_cfg = episode_config or {}
+        if ep_cfg.get("enabled", True):
+            if verbose:
+                min_m = (ep_cfg.get("min_duration_seconds") or MANJU_DEFAULT_MIN) // 60
+                max_m = (ep_cfg.get("max_duration_seconds") or MANJU_DEFAULT_MAX) // 60
+                print(f"[3/4] 漫剧集数规划...")
+            episodes = plan_episodes(
+                scenes,
+                min_duration=ep_cfg.get("min_duration_seconds", MANJU_DEFAULT_MIN),
+                max_duration=ep_cfg.get("max_duration_seconds", MANJU_DEFAULT_MAX),
+                target_episodes=ep_cfg.get("target_episodes"),
+                hook_style=ep_cfg.get("hook_style", "cliffhanger"),
+                title_template=ep_cfg.get("title_template", "第{n}集"),
+                auto_split=ep_cfg.get("auto_split", True),
+            )
+            if verbose:
+                print(f"       规划为 {len(episodes)} 集（目标每集 {min_m}-{max_m} 分钟）")
+                for ep in episodes:
+                    print(f"         {ep.episode_id}: {len(ep.scenes)} 场景, "
+                          f"目标 {ep.target_duration_seconds}s, 来源章节: {ep.source_chapters}")
 
     # 5. 计算 metadata
     total_beats = sum(len(s.beats) for s in scenes)
@@ -273,7 +413,7 @@ def generate_script(
     # 6. 组装 ScriptDocument
     script_root = ScriptRoot(
         version="1.0",
-        script_type=script_type,  # type: ignore[arg-type]
+        script_type=cast(ScriptType, script_type),
         title=novel.title or "未命名剧本",
         source=str(novel.source_path) if novel.source_path else None,
         metadata=metadata,
@@ -284,7 +424,8 @@ def generate_script(
     )
 
     suffix = f", {len(episodes)} 集" if episodes else ""
-    print(f"[4/4] 构建完成: {len(scenes)} 场景, {total_beats} 节拍{suffix}")
+    if verbose:
+        print(f"[4/4] 构建完成: {len(scenes)} 场景, {total_beats} 节拍{suffix}")
     return ScriptDocument(script=script_root)
 
 
@@ -393,13 +534,13 @@ def _build_sequences_and_scenes(
                 scene_id=sc_id,
                 sequence_id=seq_id,
                 heading=SceneHeading(
-                    int_ext=detected_scene.heading_int_ext,  # type: ignore[arg-type]
+                    int_ext=cast(IntExt, detected_scene.heading_int_ext),
                     location=detected_scene.heading_location,
                     time=detected_scene.heading_time,
                 ),
                 source_chapters=detected_scene.source_chapters,
                 estimated_duration_seconds=detected_scene.estimated_duration_seconds,
-                type=detected_scene.scene_type,  # type: ignore[arg-type]
+                type=cast(SceneType, detected_scene.scene_type),
                 mood=detected_scene.mood,
                 beats=beats,
             ))
