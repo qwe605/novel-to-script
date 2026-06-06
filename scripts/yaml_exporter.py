@@ -214,7 +214,7 @@ class ScriptDocument(BaseModel):
 
     def to_yaml(self, allow_unicode: bool = True) -> str:
         """序列化为 YAML 字符串"""
-        data = self.model_dump(mode="json", exclude_none=False)
+        data = self.model_dump(mode="json", exclude_none=True)
         return yaml.dump(
             data,
             allow_unicode=allow_unicode,

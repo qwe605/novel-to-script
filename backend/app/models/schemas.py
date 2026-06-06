@@ -96,14 +96,16 @@ class TaskStatusResponse(BaseModel):
     status: str
     script_type: str
     mode: str
-    title: Optional[str] = None            # 剧本标题
-    characters: Optional[list[dict]] = None # 角色列表（供封面生成等场景使用）
-    progress: Optional[float] = None       # 0.0 – 1.0
-    progress_message: Optional[str] = None  # 当前阶段描述
+    title: Optional[str] = None
+    characters: Optional[list[dict]] = None
+    progress: Optional[float] = None
+    progress_message: Optional[str] = None
+    timing: Optional[dict[str, float]] = None
     total_scenes: Optional[int] = None
     total_beats: Optional[int] = None
     total_episodes: Optional[int] = None
     estimated_duration_minutes: Optional[float] = None
     episodes: Optional[list[EpisodeSummary]] = None
     error: Optional[str] = None
+    download_url: Optional[str] = None
     download_url: Optional[str] = None

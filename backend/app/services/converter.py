@@ -69,10 +69,12 @@ def run_pipeline(
     script_type: str,
     mode: str,
     panel_mode: str,
-    api_key: str | None,
+    title: str | None = None,
+    api_key: str | None = None,
     ai_config: dict | None = None,
     episode_config: dict | None = None,
     on_progress: Callable[[str, float], None] | None = None,
+    timing_log: dict[str, float] | None = None,
 ) -> ScriptDocument:
     """
     执行完整转换管线（供后台任务调用）。
@@ -95,6 +97,10 @@ def run_pipeline(
     # ---- 加载 ----
     novel = load_novel(input_path)
 
+    # 用户自定义标题覆盖
+    if title and title.strip():
+        novel.title = title.strip()
+
     # ---- 转换 ----
     ai_cfg = ai_config or {}
 
@@ -113,6 +119,7 @@ def run_pipeline(
             episode_config=episode_config,
             verbose=False,
             on_progress=on_progress,
+            timing_log=timing_log,
         )
     except ImportError as e:
         raise RuntimeError(f"缺少 AI 依赖库: {e}。AI 模式请安装: pip install anthropic openai")

@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import time
 from pathlib import Path
 from typing import Callable, cast
 
@@ -118,9 +119,7 @@ def plan_episodes(
     # 计算目标分割阈值
     total_duration = sum(s.estimated_duration_seconds or 60 for s in scenes)
     if target_episodes and target_episodes > 0:
-        target_per_ep = total_duration / target_episodes
-        # 钳制到 [min, max] 范围内
-        target_per_ep = max(min_duration, min(max_duration, target_per_ep))
+        target_per_ep = max(10, total_duration / target_episodes)
     else:
         target_per_ep = MANJU_DEFAULT_TARGET
 
@@ -136,14 +135,11 @@ def plan_episodes(
         # 判断是否应该切分
         should_split = False
         if current_scenes:
-            # 如果加入当前 scene 后超过最大时长，必须切分
-            if would_be > max_duration:
+            if current_duration >= target_per_ep:
                 should_split = True
-            # 如果已经达到目标时长，切分
-            elif current_duration >= target_per_ep:
+            elif not target_episodes and would_be > max_duration:
                 should_split = True
-            # 特殊：transition/montage 类型适合作为集末过渡
-            elif scene.type in ("transition", "montage") and current_duration >= min_duration:
+            elif scene.type in ("transition", "montage") and current_duration >= min_duration // 2:
                 should_split = True
 
         if should_split:
@@ -173,16 +169,15 @@ def _build_episode(
 ) -> Episode:
     """构建单集对象（支持标题模板和钩子风格）"""
     # 计算集时长
+    ids = set(scene_ids or [])
     duration = sum(
-        sc.estimated_duration_seconds or 60
-        for sc in all_scenes
-        if sc.scene_id in scene_ids
+        (getattr(sc, "estimated_duration_seconds", 0) or 60)
+        for sc in (all_scenes or [])
+        if getattr(sc, "scene_id", None) in ids
     )
-
-    # 计算来源章节
     source_chapters: set[int] = set()
-    for sc in all_scenes:
-        if sc.scene_id in scene_ids and sc.source_chapters:
+    for sc in (all_scenes or []):
+        if getattr(sc, "scene_id", None) in ids and getattr(sc, "source_chapters", None):
             source_chapters.update(sc.source_chapters)
 
     # 生成 hook
@@ -218,15 +213,19 @@ def _generate_hook_text(
 ) -> str:
     """根据钩子风格生成集末卡点文本"""
     label = _HOOK_STYLE_LABELS.get(hook_style, "悬念卡点")
-
-    for sc in reversed(all_scenes):
-        if sc.scene_id in scene_ids:
-            if sc.mood:
-                return f"{label}：{sc.mood} — 待设计"
-            elif sc.beats:
-                last_beat = sc.beats[-1]
-                prefix = "台词" if last_beat.type == "dialogue" else "动作"
-                return f"{label}：{prefix}卡点 '{last_beat.content[:20]}...'"
+    ids = set(scene_ids or [])
+    for sc in reversed(all_scenes or []):
+        if getattr(sc, "scene_id", None) in ids:
+            mood = getattr(sc, "mood", None)
+            if mood:
+                return f"{label}：{mood} — 待设计"
+            beats = getattr(sc, "beats", None) or []
+            if beats:
+                lb = beats[-1]
+                bt = getattr(lb, "type", "action") or "action"
+                bc = getattr(lb, "content", "") or ""
+                prefix = "台词" if bt == "dialogue" else "动作"
+                return f"{label}：{prefix}卡点 '{bc[:20]}...'"
             break
     return f"{label}：待设计"
 
@@ -334,6 +333,7 @@ def generate_script(
     episode_config: dict | None = None,
     verbose: bool = True,
     on_progress: "Callable[[str, float], None] | None" = None,
+    timing_log: dict[str, float] | None = None,
 ) -> ScriptDocument:
     """
     核心转换流程：小说 → 剧本。
@@ -349,11 +349,17 @@ def generate_script(
         verbose: 是否打印进度信息（CLI=True, Web=False）
         on_progress: 进度回调 (phase: str, progress: float 0-1) — Web 端用于轮询
     """
+    _t0 = time.time()
+
     def _progress(phase: str, pct: float):
         if on_progress:
             on_progress(phase, pct)
         if verbose:
             print(f"       [{pct:.0%}] {phase}")
+
+    def _lap(name: str):
+        if timing_log is not None:
+            timing_log[name] = round(time.time() - _t0, 2)
 
     _progress("加载小说", 0.05)
     if verbose:
@@ -374,6 +380,7 @@ def generate_script(
         max_tokens=max_tokens,
     )
     total_scenes = sum(len(r.scenes) for r in detection_results)
+    _lap("场景检测")
     if verbose:
         print(f"       检测到 {total_scenes} 个场景")
 
@@ -384,6 +391,7 @@ def generate_script(
     # 3. 构建 Sequence 和 Scene
     _progress("构建场景结构", 0.60)
     sequences, scenes = _build_sequences_and_scenes(detection_results, novel, characters, script_type, panel_mode)
+    _lap("构建场景")
 
     # 4. 漫剧：集数规划（支持 episode_config）
     _progress("场景结构完成", 0.75)
@@ -405,6 +413,7 @@ def generate_script(
                 title_template=ep_cfg.get("title_template", "第{n}集"),
                 auto_split=ep_cfg.get("auto_split", True),
             )
+            _lap("规划集数")
             if verbose:
                 print(f"       规划为 {len(episodes)} 集（目标每集 {min_m}-{max_m} 分钟）")
                 for ep in episodes:
@@ -441,6 +450,7 @@ def generate_script(
     if verbose:
         print(f"[4/4] 构建完成: {len(scenes)} 场景, {total_beats} 节拍{suffix}")
     _progress("保存结果", 0.95)
+    _lap("总耗时")
     return ScriptDocument(script=script_root)
 
 
@@ -448,7 +458,9 @@ def _build_characters(novel: ParsedNovel) -> list[Character]:
     """从小说解析结果构建角色表"""
     characters: list[Character] = []
     if novel.characters:
-        for nc in novel.characters:
+        for nc in (novel.characters or []):
+            if not getattr(nc, "name", None):
+                continue
             # 生成英文 snake_case id
             char_id = nc.name.strip("女主：男主：")
             char_id = char_id.split("（")[0].split("[")[0].strip()
@@ -460,10 +472,10 @@ def _build_characters(novel: ParsedNovel) -> list[Character]:
             characters.append(Character(
                 id=char_id,
                 name=nc.name,
-                aliases=nc.aliases or [],
-                description=nc.description or "",
-                voice_tags=nc.voice_tags or [],
-                archetype=nc.archetype or "",
+                aliases=nc.aliases or None,
+                description=nc.description or None,
+                voice_tags=nc.voice_tags or None,
+                archetype=nc.archetype or None,
             ))
     else:
         characters.append(Character(
@@ -490,8 +502,8 @@ def _build_sequences_and_scenes(
     # Sequence 按小说章节分组（每 1-3 章一个 Sequence）
     seq_map: dict[str, list[str]] = {}
 
-    for result in detection_results:
-        for detected_scene in result.scenes:
+    for result in (detection_results or []):
+        for detected_scene in (result.scenes or []):
             scene_counter += 1
             sc_id = f"sc_{scene_counter:03d}"
 
@@ -514,34 +526,29 @@ def _build_sequences_and_scenes(
                 beat_counter += 1
                 b_id = f"b_{beat_counter:03d}"
 
-                # 填充 extensions
-                extensions = BeatExtensions()
-                if script_type == "screenplay":
-                    from yaml_exporter import ScreenplayExtensions
-                    extensions.screenplay = ScreenplayExtensions()
-                elif script_type == "audio_drama":
-                    from yaml_exporter import AudioDramaExtensions
-                    extensions.audio_drama = AudioDramaExtensions()
-                elif script_type == "stage_play":
-                    from yaml_exporter import StagePlayExtensions
-                    extensions.stage_play = StagePlayExtensions()
-                elif script_type == "manju":
-                    extensions.manju = _build_manju_extensions(db, panel_mode)
+                # 填充 extensions — 只对 manju 有实质内容时填充
+                extensions = None
+                if script_type == "manju":
+                    manju_ext = _build_manju_extensions(db, panel_mode)
+                    if manju_ext is not None:
+                        extensions = BeatExtensions()
+                        extensions.manju = manju_ext
 
                 # 匹配 character ID
                 char_id: str | None = None
-                if db.character:
-                    for c in characters:
-                        if c.name == db.character or db.character in c.aliases:
+                if getattr(db, "character", None):
+                    for c in (characters or []):
+                        aliases = c.aliases or []
+                        if c.name == db.character or db.character in aliases:
                             char_id = c.id
                             break
 
                 beats.append(Beat(
                     beat_id=b_id,
-                    type=db.type,
+                    type=getattr(db, "type", "action") or "action",
                     character=char_id,
-                    content=db.content,
-                    parenthetical=db.parenthetical,
+                    content=getattr(db, "content", "") or "",
+                    parenthetical=getattr(db, "parenthetical", None),
                     extensions=extensions,
                 ))
 
@@ -556,7 +563,7 @@ def _build_sequences_and_scenes(
                 source_chapters=detected_scene.source_chapters,
                 estimated_duration_seconds=detected_scene.estimated_duration_seconds,
                 type=cast(SceneType, detected_scene.scene_type),
-                mood=detected_scene.mood,
+                mood=detected_scene.mood or None,
                 beats=beats,
             ))
 
@@ -571,51 +578,36 @@ def _build_sequences_and_scenes(
     return sequences, scenes
 
 
-def _build_manju_extensions(db, panel_mode: str) -> ManjuExtensions:
-    """构建漫剧扩展字段"""
+def _build_manju_extensions(db, panel_mode: str) -> ManjuExtensions | None:
+    """构建漫剧扩展字段。简单模式只填必要字段，无意义值时返回 None。"""
+    db_content = getattr(db, "content", "") or ""
+    db_type = getattr(db, "type", "action") or "action"
     ext = ManjuExtensions()
 
-    # 通用：景别推断
-    content_len = len(db.content)
-    if content_len <= 15:
-        ext.shot = "EXTREME_CLOSE-UP"
-    elif content_len <= 30:
-        ext.shot = "CLOSE-UP"
-    elif content_len <= 60:
-        ext.shot = "MEDIUM"
-    else:
-        ext.shot = "WIDE"
-
-    # 详细模式：画面描述
     if panel_mode == "detailed":
-        ext.frame_description = db.content
-        if db.type == "dialogue":
-            ext.dialogue_bubble = "右下"  # 默认右下角
-            ext.sfx_visual = []
-        elif db.type == "action":
-            # 尝试提取动作中的拟声词
+        content_len = len(db_content)
+        if content_len <= 15: ext.shot = "EXTREME_CLOSE-UP"
+        elif content_len <= 30: ext.shot = "CLOSE-UP"
+        elif content_len <= 60: ext.shot = "MEDIUM"
+        else: ext.shot = "WIDE"
+        ext.frame_description = db_content
+        if db_type == "dialogue":
+            ext.dialogue_bubble = "右下"
+            ext.voice_direction = db.parenthetical.strip("（）") if getattr(db, "parenthetical", None) else "按角色 voice_tags 演绎"
+            ext.subtitle_style = "BUBBLE"; ext.duration_seconds = 2.0
+        elif db_type == "action":
             import re
-            sfx_matches = re.findall(r"[砰咔嚓轰咚嗖唰哗叮咚吱呀]+", db.content)
-            if sfx_matches:
-                ext.sfx_visual = sfx_matches
+            sfx_matches = re.findall(r"[砰咔嚓轰咚嗖唰哗叮咚吱呀]+", db_content)
+            if sfx_matches: ext.sfx_visual = sfx_matches
+            ext.subtitle_style = "NORMAL"; ext.duration_seconds = 3.0
+        return ext
 
-    # 对白类型的配音指导
-    if db.type == "dialogue":
-        if db.parenthetical:
+    if db_type == "dialogue":
+        ext.subtitle_style = "BUBBLE"; ext.duration_seconds = 2.0
+        if getattr(db, "parenthetical", None):
             ext.voice_direction = db.parenthetical.strip("（）")
-        else:
-            ext.voice_direction = "按角色 voice_tags 演绎"
-
-    # 默认转场和特效为空（留空提示策略）
-    ext.transition = None
-    ext.visual_effect = None
-    ext.effect_note = None
-    ext.bgm = None
-    ext.sfx = None
-    ext.subtitle_style = "BUBBLE" if db.type == "dialogue" else "NORMAL"
-    ext.duration_seconds = 2.0 if db.type == "dialogue" else 3.0
-
-    return ext
+        return ext
+    return None
 
 
 # =============================================================================

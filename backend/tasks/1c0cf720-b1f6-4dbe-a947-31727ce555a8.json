@@ -1,0 +1,294 @@
+{
+  "task_id": "1c0cf720-b1f6-4dbe-a947-31727ce555a8",
+  "status": "completed",
+  "progress": 1.0,
+  "progress_message": "转换完成",
+  "title": "穿成男主带球跑的前女友",
+  "script_type": "manju",
+  "mode": "rule",
+  "panel_mode": "simple",
+  "api_key": null,
+  "ai_config": null,
+  "episode_config": {
+    "enabled": true,
+    "target_episodes": null,
+    "min_duration_seconds": 180,
+    "max_duration_seconds": 300,
+    "hook_style": "cliffhanger",
+    "auto_split": true,
+    "title_template": "第{n}集 {subtitle}",
+    "scene_prefix": ""
+  },
+  "input_path": "E:\\notel\\novel-to-script\\backend\\uploads\\1c0cf720-b1f6-4dbe-a947-31727ce555a8_原文.txt",
+  "result_path": "E:\\notel\\novel-to-script\\backend\\results\\1c0cf720-b1f6-4dbe-a947-31727ce555a8_剧本.yaml",
+  "error": null,
+  "created_at": 1780721476.1483495,
+  "characters": [
+    {
+      "id": "protagonist",
+      "name": "主角",
+      "aliases": null,
+      "description": "请根据小说设定补充角色信息",
+      "voice_tags": null,
+      "archetype": null,
+      "visual_tags": null
+    }
+  ],
+  "total_scenes": 30,
+  "total_beats": 1254,
+  "total_episodes": 17,
+  "estimated_duration_minutes": 84.2,
+  "episodes": [
+    {
+      "episode_id": "ep_01",
+      "episode_number": 1,
+      "title": "第1集 ## 第一章 是",
+      "hook": "悬念卡点：动作卡点 '很快她又想明白了，现在的施工现场，没准就...'",
+      "target_duration_seconds": 180,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_001",
+        "sc_002",
+        "sc_003"
+      ],
+      "scene_count": 3
+    },
+    {
+      "episode_id": "ep_02",
+      "episode_number": 2,
+      "title": "第2集 片刻后，一个穿着",
+      "hook": "悬念卡点：动作卡点 '其实，还有个找到孩子霸总爹方法：抱着娃去...'",
+      "target_duration_seconds": 300,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_004"
+      ],
+      "scene_count": 1
+    },
+    {
+      "episode_id": "ep_03",
+      "episode_number": 3,
+      "title": "第3集 姜青蜜只想找男主",
+      "hook": "悬念卡点：动作卡点 '青砚深意识到女人要生气，忙收敛情绪，摇头...'",
+      "target_duration_seconds": 300,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_005"
+      ],
+      "scene_count": 1
+    },
+    {
+      "episode_id": "ep_04",
+      "episode_number": 4,
+      "title": "第4集 进电梯，走廊，进",
+      "hook": "悬念卡点：动作卡点 '“你吃了消食片就好好休息，看好团团，我找...'",
+      "target_duration_seconds": 268,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_006"
+      ],
+      "scene_count": 1
+    },
+    {
+      "episode_id": "ep_05",
+      "episode_number": 5,
+      "title": "第5集 走出酒店，青砚深",
+      "hook": "悬念卡点：动作卡点 '“那我明天再来。”...'",
+      "target_duration_seconds": 290,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_007",
+        "sc_008"
+      ],
+      "scene_count": 2
+    },
+    {
+      "episode_id": "ep_06",
+      "episode_number": 6,
+      "title": "第6集 姜青蜜看着男人的",
+      "hook": "悬念卡点：动作卡点 '答：【一般萌出16~20颗，乳牙基本出齐...'",
+      "target_duration_seconds": 288,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_009",
+        "sc_010"
+      ],
+      "scene_count": 2
+    },
+    {
+      "episode_id": "ep_07",
+      "episode_number": 7,
+      "title": "第7集 另一边，姜青蜜正",
+      "hook": "悬念卡点：动作卡点 '中午十二点吃饭时间到。...'",
+      "target_duration_seconds": 276,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_011",
+        "sc_012",
+        "sc_013"
+      ],
+      "scene_count": 3
+    },
+    {
+      "episode_id": "ep_08",
+      "episode_number": 8,
+      "title": "第8集 饥肠辘辘的工人们",
+      "hook": "悬念卡点：动作卡点 '而且这男人帮了她挺多的，她也想请他吃饭，...'",
+      "target_duration_seconds": 198,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_014",
+        "sc_015",
+        "sc_016",
+        "sc_017"
+      ],
+      "scene_count": 4
+    },
+    {
+      "episode_id": "ep_09",
+      "episode_number": 9,
+      "title": "第9集 青砚深回了个“好",
+      "hook": "悬念卡点：动作卡点 '两个月前，他准备安排砚深的婚事，毕竟他也...'",
+      "target_duration_seconds": 300,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_018"
+      ],
+      "scene_count": 1
+    },
+    {
+      "episode_id": "ep_10",
+      "episode_number": 10,
+      "title": "第10集 第二天，透过卿辰",
+      "hook": "悬念卡点：动作卡点 '卿明弘挥了挥手：“去吧。”...'",
+      "target_duration_seconds": 180,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_019"
+      ],
+      "scene_count": 1
+    },
+    {
+      "episode_id": "ep_11",
+      "episode_number": 11,
+      "title": "第11集 卿辰微微弯着腰，",
+      "hook": "悬念卡点：动作卡点 '一看病房墙上挂着的时间，早上七点半？...'",
+      "target_duration_seconds": 300,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_020"
+      ],
+      "scene_count": 1
+    },
+    {
+      "episode_id": "ep_12",
+      "episode_number": 12,
+      "title": "第12集 不，这是第二天早",
+      "hook": "悬念卡点：动作卡点 '再一次恢复意识后，青砚深还没睁开眼睛，就...'",
+      "target_duration_seconds": 180,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_021",
+        "sc_022"
+      ],
+      "scene_count": 2
+    },
+    {
+      "episode_id": "ep_13",
+      "episode_number": 13,
+      "title": "第13集 失忆快三个月，他",
+      "hook": "悬念卡点：动作卡点 '## 第24章 北城最有钱的那家是卿家...'",
+      "target_duration_seconds": 180,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_023"
+      ],
+      "scene_count": 1
+    },
+    {
+      "episode_id": "ep_14",
+      "episode_number": 14,
+      "title": "第14集 青砚深从医院回来",
+      "hook": "悬念卡点：动作卡点 '## 第30章 吃饱了想跑，那就别吃饱...'",
+      "target_duration_seconds": 180,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_024"
+      ],
+      "scene_count": 1
+    },
+    {
+      "episode_id": "ep_15",
+      "episode_number": 15,
+      "title": "第15集 另一边。",
+      "hook": "悬念卡点：动作卡点 '## 第40章 抱抱...'",
+      "target_duration_seconds": 260,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_025"
+      ],
+      "scene_count": 1
+    },
+    {
+      "episode_id": "ep_16",
+      "episode_number": 16,
+      "title": "第16集 李兰燕带着姜团团",
+      "hook": "悬念卡点：动作卡点 '“蜀黍。”...'",
+      "target_duration_seconds": 262,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_026",
+        "sc_027"
+      ],
+      "scene_count": 2
+    },
+    {
+      "episode_id": "ep_17",
+      "episode_number": 17,
+      "title": "第17集 一楼大厅，姜团团",
+      "hook": "悬念卡点：动作卡点 '听说那个蛋很大很大，比鸡蛋大多了，有她的...'",
+      "target_duration_seconds": 180,
+      "source_chapters": [
+        1
+      ],
+      "scenes": [
+        "sc_028",
+        "sc_029",
+        "sc_030"
+      ],
+      "scene_count": 3
+    }
+  ]
+}
