@@ -4,6 +4,8 @@
 
 将网文小说自动转换为结构化剧本（YAML 格式），支持按集组织（每集 3-5 分钟）、自动规划集数、生成悬念钩子（卡点）。兼容 [notel](https://github.com/worldwonderer/oh-story-claudecode) 网文写作项目结构，也支持任意文本文件输入。
 
+> **在线体验**: [novel-to-script-indol.vercel.app](https://novel-to-script-indol.vercel.app)
+
 ---
 
 ## 功能特性
