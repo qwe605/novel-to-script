@@ -31,8 +31,8 @@ frontend/dist/**
 .env
 *.egg-info
 pyproject.toml
-package-lock.json
-package.json
+/package-lock.json
+/package.json
 demo-screenshots
 demo-screenshots/**
 demo-video
