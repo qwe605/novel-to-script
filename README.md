@@ -141,8 +141,14 @@ Skill 会自动：
 ## 运行测试
 
 ```bash
+# 核心转换测试（59 个）
 cd scripts
 pip install pytest
+python -m pytest tests/ -v
+
+# API 集成测试（11 个）
+cd backend
+pip install httpx
 python -m pytest tests/ -v
 ```
 
