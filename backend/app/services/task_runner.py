@@ -53,13 +53,18 @@ def run_conversion(
 
             from app.services.converter import run_pipeline
 
-            timing_log = {}
+            timing_log: dict[str, float] = {}
             script_doc = run_pipeline(
-                input_path=input_path, script_type=script_type,
-                mode=mode, panel_mode=panel_mode, title=title,
-                api_key=api_key, ai_config=ai_config,
+                input_path=input_path,
+                script_type=script_type,
+                mode=mode,
+                panel_mode=panel_mode,
+                title=title,
+                api_key=api_key,
+                ai_config=ai_config,
                 episode_config=episode_config,
-                on_progress=on_progress, timing_log=timing_log,
+                on_progress=on_progress,
+                timing_log=timing_log,
             )
 
             # 保存 YAML
@@ -103,7 +108,9 @@ def run_conversion(
         except Exception as e:
             tb = traceback.format_exc()
             import sys
+            # 打印到 stderr 方便调试
             print(f"\n[ERROR] task {task_id} failed:\n{tb}", file=sys.stderr)
+            # 取最后 3 行作为简要信息
             tb_lines = tb.strip().split("\n")
             short_msg = "\n".join(tb_lines[-4:]) if len(tb_lines) > 4 else tb
             store.update(task_id, {

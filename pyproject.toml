@@ -4,16 +4,16 @@ target-version = "py312"
 
 [lint]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "N",   # pep8-naming
-    "UP",  # pyupgrade
+    "E",
+    "W",
+    "F",
+    "I",
+    "N",
+    "UP",
 ]
 ignore = [
-    "E501",  # line too long (handled by formatter)
-    "N818",  # exception suffix (not always appropriate)
+    "E501",
+    "N818",
 ]
 
 [lint.per-file-ignores]

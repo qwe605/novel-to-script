@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from fastapi import APIRouter
@@ -5,7 +6,7 @@ from fastapi.responses import PlainTextResponse
 
 router = APIRouter(prefix="/api", tags=["health"])
 
-# Demo novel path
+# Demo novel — try disk path, fallback to bundled file
 _DEMO_PATH = Path(__file__).resolve().parent.parent.parent.parent / "examples" / "demo_novel_3chapters.md"
 
 
@@ -16,8 +17,11 @@ async def health_check():
 
 @router.get("/demo", response_class=PlainTextResponse)
 async def get_demo_novel():
-    """返回示例小说文本（3 章），供前端 Load Demo 按钮使用。"""
     if _DEMO_PATH.exists():
         return _DEMO_PATH.read_text(encoding="utf-8")
-    return "# Demo not found"
+    # Vercel 环境 — 从 api/ 同级目录查找
+    alt = Path(__file__).resolve().parent.parent / "examples" / "demo_novel_3chapters.md"
+    if alt.exists():
+        return alt.read_text(encoding="utf-8")
+    return "###1. 第一章\n\n请通过文件上传来体验转换功能。"
 

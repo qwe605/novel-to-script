@@ -3,14 +3,19 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-# 加载 .env（优先项目根目录，回退 backend 目录）
 ENV_PATH = Path(__file__).resolve().parent.parent.parent / ".env"
 if ENV_PATH.exists():
     load_dotenv(ENV_PATH)
 else:
-    load_dotenv()  # 回退到当前工作目录查找
+    load_dotenv()
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+IS_VERCEL = bool(os.getenv("VERCEL"))
+
+if IS_VERCEL:
+    BASE_DIR = Path("/tmp")
+else:
+    BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
 UPLOAD_DIR = BASE_DIR / "uploads"
 RESULTS_DIR = BASE_DIR / "results"
 UPLOAD_DIR.mkdir(exist_ok=True)

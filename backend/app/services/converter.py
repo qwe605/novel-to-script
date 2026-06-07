@@ -102,6 +102,9 @@ def run_pipeline(
         novel.title = title.strip()
 
     # ---- 转换 ----
+    if title and title.strip():
+        novel.title = title.strip()
+
     ai_cfg = ai_config or {}
 
     try:
@@ -122,9 +125,11 @@ def run_pipeline(
             timing_log=timing_log,
         )
     except ImportError as e:
-        raise RuntimeError(f"缺少 AI 依赖库: {e}。AI 模式请安装: pip install anthropic openai")
+        raise RuntimeError(f"缺少 AI 依赖库: {e}。AI 模式请安装: pip install anthropic openai") from e
     except Exception as e:
-        raise RuntimeError(f"转换失败: {e}") from e
+        import traceback
+        tb = traceback.format_exc()
+        raise RuntimeError(f"转换失败: {e}\n\n完整堆栈:\n{tb}") from e
 
 
 def convert_novel(

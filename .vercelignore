@@ -1,0 +1,16 @@
+node_modules
+__pycache__
+*.pyc
+.git
+.vite
+backend/uploads
+backend/results
+backend/tasks
+scripts/tests
+references
+examples/*.yaml
+frontend/node_modules
+frontend/dist
+.env
+*.egg-info
+pyproject.toml

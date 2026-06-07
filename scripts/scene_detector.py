@@ -78,13 +78,24 @@ class RuleBasedSceneDetector:
 
     # 地点关键词库（用于 heading_location 推断）
     LOCATION_KEYWORDS = [
-        (r"(.*?)(?:别墅|公寓|房子|房间|卧室|客厅|厨房|书房|浴室)", r"\1\2"),
-        (r"(.*?)(?:医院|诊所|病房|手术室)", r"医院 - \2"),
-        (r"(.*?)(?:办公室|会议室|公司|大厦)", r"公司 - \2"),
-        (r"(.*?)(?:咖啡厅|餐厅|酒吧|酒店)", r"\1\2"),
-        (r"(.*?)(?:车内|车外|车里|驾驶座|后座)", r"车内"),
-        (r"(.*?)(?:街道|马路|路口|广场|公园)", r"街道"),
+        # 室内具体空间
+        (r"(?:别墅|公寓|出租屋|豪宅|小区|楼道|走廊|太平间)", "match", lambda m: m.group(0)),
+        (r"(?:主卧|卧室|客厅|厨房|书房|浴室|洗手间|阳台|玄关)", "match", lambda m: m.group(0)),
+        (r"(?:医院|诊所|病房|手术室|急诊室)", "match", lambda m: m.group(0)),
+        (r"(?:办公室|会议室|公司|大厦|写字楼|大厅)", "match", lambda m: m.group(0)),
+        (r"(?:咖啡厅|餐厅|酒吧|酒店|饭店|面馆|茶馆)", "match", lambda m: m.group(0)),
+        (r"(?:车内|车上|车里|驾驶座|后座|出租车|公交车|地铁)", "match", lambda m: "车内"),
+        # 室外场景
+        (r"(?:工地|施工现场|街道|马路|路口|广场|公园|花园|庭院|小区门口|学校|大学|商场|超市)", "match", lambda m: m.group(0)),
+        # 特定场景
+        (r"(?:警察局|派出所|法院|银行|机场|车站|火车站|高铁站)", "match", lambda m: m.group(0)),
     ]
+
+    # 地点介词提取 — "在/到+地点+里/内/中" 模式
+    LOCATION_PREP_RE = re.compile(
+        r"(?:在|到|走进|走出|返回|来到|回到|进入|离开|穿过|路过)"
+        r"([一-鿿]{2,5}(?:别墅|公寓|房间|楼|层|室|厅|院|园|店|馆|厂|场|站|街|路|巷|区|村|镇))"
+    )
 
     # 时间推断词
     TIME_KEYWORDS = {
@@ -97,8 +108,10 @@ class RuleBasedSceneDetector:
     }
 
     # 内外景推断
-    INT_KEYWORDS = [r"房间", r"屋内", r"室内", r"别墅", r"公寓", r"医院", r"办公室", r"车内"]
-    EXT_KEYWORDS = [r"街道", r"户外", r"室外", r"庭院", r"公园", r"广场", r"门外"]
+    INT_KEYWORDS = [r"房间", r"屋内", r"室内", r"别墅", r"公寓", r"出租屋", r"医院", r"办公室",
+                    r"车内", r"车里", r"客厅", r"卧室", r"厨房", r"浴室", r"洗手间", r"走廊"]
+    EXT_KEYWORDS = [r"街道", r"户外", r"室外", r"庭院", r"公园", r"广场", r"门外", r"工地",
+                    r"施工现场", r"小区", r"路边", r"大街", r"马路", r"门口", r"路口"]
 
     # 对话引号模式
     DIALOGUE_PATTERNS = [
@@ -128,7 +141,7 @@ class RuleBasedSceneDetector:
 
         scenes: list[DetectedScene] = []
         for block_idx, block in enumerate(scene_blocks):
-            scene = self._build_scene(block, chapter.number, outline, block_idx)
+            scene = self._build_scene(block, chapter.number, chapter.title, outline, block_idx)
             scenes.append(scene)
 
         return DetectionResult(chapter_number=chapter.number, scenes=scenes)
@@ -216,6 +229,7 @@ class RuleBasedSceneDetector:
         self,
         paragraphs: list[str],
         chapter_number: int,
+        chapter_title: Optional[str],
         outline: Optional["ChapterOutline"],
         block_index: int,
     ) -> DetectedScene:
@@ -224,8 +238,8 @@ class RuleBasedSceneDetector:
         scene.source_chapters = [chapter_number]
 
         # 推断 heading
-        scene.heading_location = self._infer_location(paragraphs)
-        scene.heading_time = self._infer_time(paragraphs)
+        scene.heading_location = self._infer_location(paragraphs, chapter_title)
+        scene.heading_time = self._infer_time(paragraphs, chapter_title)
         scene.heading_int_ext = self._infer_int_ext(paragraphs)
 
         # 推断 mood
@@ -233,6 +247,8 @@ class RuleBasedSceneDetector:
             scene.mood = outline.emotion_arc
         elif outline and outline.mood_start:
             scene.mood = f"{outline.mood_start}→{outline.mood_end}"
+        elif chapter_title and any(kw in chapter_title for kw in ["醒来","苏醒","震惊","恐慌","翻车","打脸","修罗"]):
+            scene.mood = "紧张→警觉"
 
         # 推断 type
         dialogue_count = sum(1 for p in paragraphs if self._is_dialogue_paragraph(p))
@@ -255,24 +271,57 @@ class RuleBasedSceneDetector:
 
         return scene
 
-    def _infer_location(self, paragraphs: list[str]) -> str:
-        """从段落中推断地点"""
-        full_text = "".join(paragraphs[:10])  # 只看前10段
-        for pattern, _ in self.LOCATION_KEYWORDS:
+    def _infer_location(self, paragraphs: list[str], chapter_title: Optional[str] = None) -> str:
+        """从段落中推断地点，辅以章节标题"""
+        full_text = "".join(paragraphs[:15])
+
+        # 1. 地点关键词库
+        for pattern, mode, extractor in self.LOCATION_KEYWORDS:
             m = re.search(pattern, full_text)
             if m:
-                loc = m.group(0)
-                # 简化地点名
-                loc = re.sub(r"^(.*?)(?:的|里|内|中)", r"\1", loc)
-                return loc[-10:]  # 限制长度
+                return extractor(m)
+
+        # 2. "在/到 + 地点 + 里/内" 介词模式
+        m = self.LOCATION_PREP_RE.search(full_text)
+        if m:
+            return m.group(1)
+
+        # 3. "酒店/医院/公司/学校 + 名词" 组合
+        compound_m = re.search(r"([一-鿿]{2,4}(?:酒店|医院|公司|学校|大厦|大楼|花园|小区))", full_text)
+        if compound_m:
+            return compound_m.group(1)
+
+        # 4. 回退：章节标题 → 场景名（只取看起来像地名的短标题）
+        if chapter_title:
+            clean = re.sub(r"^[#第CcHh\d一二三四五六七八九十百千万]+[章节部回话集期]?\s*[：:。.]?\s*", "", chapter_title)
+            clean = re.sub(r"^[\[【].*?[\]】]\s*", "", clean)
+            clean = clean.strip()
+            # 必须含地点特征词才采纳（避免"说清楚""他想起来了"等纯动作/对话标题）
+            LOCATION_SUFFIX_RE = re.compile(
+                r"(?:室|厅|房|楼|院|园|店|馆|场|站|街|路|巷|区|村|镇|城"
+                r"|医院|学校|公司|酒店|餐厅|咖啡|超市|商场|公园|广场"
+                r"|工地|工厂|车间|出租屋|别墅|公寓|豪宅|小区"
+                r"|卧室|厨房|浴室|洗手间|走廊|电梯|楼梯|门口|路边|门)"
+            )
+            if clean and LOCATION_SUFFIX_RE.search(clean):
+                return clean
+
         return "待设定地点"
 
-    def _infer_time(self, paragraphs: list[str]) -> str:
-        """从段落中推断时间"""
+    def _infer_time(self, paragraphs: list[str], chapter_title: Optional[str] = None) -> str:
+        """从段落中推断时间，辅以章节标题"""
         full_text = "".join(paragraphs[:5])
         for pattern, time_val in self.TIME_KEYWORDS.items():
             if re.search(pattern, full_text):
                 return time_val
+        # 从章节标题推断
+        if chapter_title:
+            if any(kw in chapter_title for kw in ["深夜","夜晚","黑夜","夜"]):
+                return "NIGHT"
+            if any(kw in chapter_title for kw in ["清晨","黎明","早晨","晨"]):
+                return "DAWN"
+            if any(kw in chapter_title for kw in ["黄昏","傍晚","暮"]):
+                return "DUSK"
         return "DAY"
 
     def _infer_int_ext(self, paragraphs: list[str]) -> str:
@@ -463,15 +512,16 @@ class AIStudioSceneDetector:
 
     def detect(self, chapter: "Chapter", outline: Optional["ChapterOutline"] = None) -> DetectionResult:
         """
-        调用 LLM API 进行高精度场景拆解。
-        返回结构和 RuleBasedSceneDetector 完全一致。
+        混合模式：
+        - AI 负责：场景边界识别、地点/时间/情绪推断、角色归因
+        - 规则引擎负责：在每个 AI 识别的 scene 内机械提取 beats
         """
         system_prompt = """你是一位专业的网文改编编剧大师，精通将小说文本转换为结构化剧本。
 你的核心理念：以视觉构建文本，以戏剧动作为基本单位，用潜台词替代直白表达。
 
 ## 输出格式
 
-严格输出一个 JSON 对象（不要任何解释、markdown 标记或多余文本）：
+严格输出一个 JSON 对象（不要任何解释、markdown 标记或多余文本），只返回场景级信息，不要 beats 内容：
 {
   "scenes": [
     {
@@ -480,14 +530,7 @@ class AIStudioSceneDetector:
       "int_ext": "INT. | EXT. | INT./EXT.",
       "scene_type": "dialogue_heavy | action | montage | transition | static",
       "mood": "场景情绪弧线，如'压抑→警觉'或'试探→紧张'（可为空字符串）",
-      "beats": [
-        {
-          "type": "action | dialogue | narration | vos | transition | sfx | music",
-          "content": "具体内容",
-          "character": "角色名（仅 dialogue/action 类型需要，其他类型为 null）",
-          "parenthetical": "括号提示（仅 dialogue 类型可选，如'压低声音''停顿'，可为 null）"
-        }
-      ]
+      "characters": ["角色1", "角色2"]
     }
   ]
 }
@@ -496,17 +539,13 @@ class AIStudioSceneDetector:
 
 ### 绝对禁止
 1. **心理描写**：不得出现"他意识到""她感到""内心涌起""我想""他觉得"等无法被摄影机捕捉的心理活动。
-   错误示例："林婉感到一阵恐惧涌上心头。"
-   正确做法："林婉的手指攥紧被角，指节发白。"
 2. **括号暗示**：parenthetical 不得包含解释角色内心的内容，如"（其实是在掩饰紧张）"。
 3. **角色用台词解释设定**：台词必须服务于角色间的冲突或关系，不是作者的传声筒。
-4. **AI 腔台词**：禁止过度比喻、书面化长句、散文式表达。台词要像真人说话。
 
 ### 必须做到
 - 只写能被看见的动作和能被听见的声音
 - 用具体动作替代心理描写（动作即潜台词）
 - 对白口语化、自然、像真人说话
-- 对话是冰山——角色说出来的只是表面，真正的含义在水面之下
 
 ## Scene 拆分规则
 
@@ -519,43 +558,38 @@ class AIStudioSceneDetector:
    - transition：纯转场过渡（无实质内容）
    - static：静止/氛围场景（环境描写为主，无冲突）
 
-## Beat 类型选择
-
-| type | 使用场景 | 示例 |
-|------|---------|------|
-| action | 角色动作、环境变化、视觉呈现 | "林婉猛然睁眼，手指抓向枕边" |
-| dialogue | 角色说出的台词 | "醒了？"（直接引用原文对话） |
-| narration | 旁白/画外音（非角色声音，叙述性文字） | "三年后，这座城市变了模样" |
-| vos | 角色内心独白，以画外音形式呈现 | 第一人称内心活动转 VO |
-| transition | 场景转换 | 仅用于特殊转场，普通场景切换在 scene 级别处理 |
-| sfx | 重点音效提示 | "雷声由远及近" |
-| music | 音乐提示 | 仅在有明确音乐描述时使用 |
-
 ## 角色归因规则
 
-1. 对白必须归因到说话的角色。从上下文推断说话者（引号前的人名、"XX说"等）。
-2. 动作为特定角色的动作时填写 character，环境描写/群体动作时可为 null。
-3. 角色名使用原文中的名字（如"林婉""顾深寒"），不要自创。
-4. 同一角色在全文使用统一的名字，不要有时用全名有时用简称。
+1. 角色名使用原文中的名字（如"林婉""顾深寒"），不要自创。
+2. 同一角色在全文使用统一的名字，不要有时用全名有时用简称。
+3. 每个 scene 的 characters 数组列出该场景出现的所有角色。
+4. 第一人称"我"→ 用实际角色名替代。
 
 ## 从小说文本转换的实操指南
 
-1. **第一人称转换**：小说中"我"的内心独白 → 根据语境转为 action（可视动作）、vos（内心独白 VO）、或 narration（旁白）。
-   示例："我攥了攥拳头，走进了小区。" → type: action, content: "她攥了攥拳头，走进小区。"
-   示例："我想，我必须找到他。" → type: vos, content: "我必须找到他。"
-
-2. **引号内对话**：直接提取为 dialogue beat，去除引号，保留原汁原味的台词。
-3. **环境/氛围描写**：转为 action beat，保留视觉细节。
-4. **parenthetical 使用**：仅在对白中标注语气或极简动作（≤10 个中文字符）。禁止解释心理。
-   正确："（压低声音）""（停顿）""（尾音微扬）"
-   错误："（内心其实很害怕）""（这句话是在试探对方）"
-
-5. **保持原文语言风格**：不要改写或美化原文，保持小说原有的语气和节奏。
+1. 引号内的对话 → 推断说话角色
+2. 环境/氛围描写 → 提取为 scene 的地点信息
+3. 心理活动 → 判断是否能转为视觉动作，填入 mood 中
+4. 保持原文语言风格，不要改写或美化原文
 """
 
-        user_prompt = f"小说章节内容：\n\n{chapter.content}\n\n"
+        content = (chapter.content or "")
+
+        # 构建章节上下文提示
+        ctx_parts: list[str] = []
+        if chapter.title:
+            ctx_parts.append(f"章节标题：{chapter.title}")
         if outline:
-            user_prompt += f"\n章节大纲信息：\n主事件：{outline.main_event}\n情绪弧线：{outline.emotion_arc}\n"
+            if outline.main_event:
+                ctx_parts.append(f"主事件：{outline.main_event}")
+            if outline.emotion_arc:
+                ctx_parts.append(f"情绪弧线：{outline.emotion_arc}")
+
+        user_prompt = ""
+        if ctx_parts:
+            user_prompt += "\n".join(ctx_parts) + "\n\n"
+        user_prompt += f"小说章节内容：\n\n{content}\n\n"
+        user_prompt += "只返回 scenes 数组，每个 scene 含 location/time/int_ext/scene_type/mood/characters 字段。不要 beats。"
 
         if self.api_type == "anthropic":
             raw = self._call_anthropic(system_prompt, user_prompt)
@@ -569,27 +603,37 @@ class AIStudioSceneDetector:
         elif "```" in raw:
             raw = raw.split("```")[1].split("```")[0].strip()
 
-        data = json.loads(raw)
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError as e:
+            raise RuntimeError(f"AI 返回了非标准 JSON，请重试或切换为规则模式。原始内容前 200 字符: {raw[:200]}") from e
+
+        # AI 返回场景元数据 → 按比例分配段落 → 规则引擎填充 beats
+        all_paras = _split_paragraphs(content)
+        scene_metas = [d for d in (data.get("scenes") or []) if isinstance(d, dict)]
+        n_scenes = max(1, len(scene_metas))
         scenes: list[DetectedScene] = []
 
-        for sc_data in data.get("scenes", []):
-            scene = DetectedScene(
-                heading_location=sc_data.get("location", "待设定地点"),
-                heading_time=sc_data.get("time", "DAY"),
-                heading_int_ext=sc_data.get("int_ext", "INT."),
+        for idx, sc_data in enumerate(scene_metas):
+            # 每个 AI 识别的 scene 分到 1/n 的段落（不重叠）
+            start = idx * len(all_paras) // n_scenes
+            end = (idx + 1) * len(all_paras) // n_scenes if idx < n_scenes - 1 else len(all_paras)
+            paras = all_paras[start:end]
+
+            characters = sc_data.get("characters") or []
+            char_names = set(characters)
+
+            beats = _rule_extract_beats(paras, char_names)
+
+            scenes.append(DetectedScene(
+                heading_location=(sc_data.get("location") or "待设定地点"),
+                heading_time=(sc_data.get("time") or "DAY"),
+                heading_int_ext=(sc_data.get("int_ext") or "INT."),
                 source_chapters=[chapter.number],
-                scene_type=sc_data.get("scene_type", "dialogue_heavy"),
-                mood=sc_data.get("mood", ""),
-            )
-            for b_data in sc_data.get("beats", []):
-                scene.beats.append(DetectedBeat(
-                    type=b_data.get("type", "action"),
-                    content=b_data.get("content", ""),
-                    character=b_data.get("character") or None,
-                    is_dialogue=b_data.get("type") == "dialogue",
-                ))
-            scene.estimated_duration_seconds = max(30, len(scene.beats) * 5)
-            scenes.append(scene)
+                scene_type=(sc_data.get("scene_type") or "dialogue_heavy"),
+                mood=(sc_data.get("mood") or ""),
+                beats=beats,
+            ))
 
         return DetectionResult(chapter_number=chapter.number, scenes=scenes)
 
@@ -619,6 +663,82 @@ class AIStudioSceneDetector:
 
 
 # =============================================================================
+# 混合模式辅助 — AI 做场景边界，规则引擎填充 beat
+# =============================================================================
+
+def _split_paragraphs(text: str) -> list[str]:
+    """将文本切分为段落列表"""
+    lines = (text or "").replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    return [line.strip() for line in lines if line.strip()]
+
+
+def _is_dialogue_para(para: str) -> bool:
+    """判断段落是否为对话"""
+    if len(para) <= 25:
+        return True
+    if re.search(r"[\"\"''「『](.+?)[\"\"''」『]", para):
+        return True
+    return False
+
+
+def _extract_dialogue_snippets(para: str) -> list[str]:
+    """从段落提取引号内的对白"""
+    seen: set[str] = set()
+    snippets: list[str] = []
+    for pat in [r"[\"\"]([^\"\"]+)[\"\"]", r"[「『]([^」』]+)[」』]"]:
+        for m in re.finditer(pat, para):
+            t = m.group(1).strip()
+            if t and t not in seen:
+                snippets.append(t)
+                seen.add(t)
+    return snippets
+
+
+def _rule_extract_beats(paragraphs: list[str], known_characters: set[str] | None = None) -> list[DetectedBeat]:
+    """规则引擎从段落中提取 beats，用 AI 提供的角色名辅助归因"""
+    beats: list[DetectedBeat] = []
+    chars = known_characters or set()
+
+    for para in paragraphs:
+        para = para.strip()
+        if not para:
+            continue
+
+        snippets = _extract_dialogue_snippets(para)
+
+        if snippets and len(para) <= 40:
+            # 整段主要是对话
+            for s in snippets:
+                # 尝试从上下文匹配角色
+                char = None
+                for c in chars:
+                    if c in para[:20]:
+                        char = c
+                        break
+                beats.append(DetectedBeat(type="dialogue", content=s, character=char, is_dialogue=True))
+        elif snippets:
+            # 混合段落：先提取动作部分，再放对白
+            action_part = para
+            for s in snippets:
+                action_part = action_part.replace(f'"”{s}“', "").replace(f"'{s}'", "")
+                action_part = action_part.replace(f"「{s}」", "").replace(f"『{s}』", "")
+            action_part = action_part.strip("，。 \n")
+            if action_part and len(action_part) > 5:
+                beats.append(DetectedBeat(type="action", content=action_part))
+            for s in snippets:
+                char = None
+                for c in chars:
+                    if c in para[:30]:
+                        char = c
+                        break
+                beats.append(DetectedBeat(type="dialogue", content=s, character=char, is_dialogue=True))
+        else:
+            beats.append(DetectedBeat(type="action", content=para))
+
+    return beats
+
+
+# =============================================================================
 # 便捷入口
 # =============================================================================
 
@@ -631,39 +751,65 @@ def detect_scenes(
     base_url: Optional[str] = None,
     temperature: float = 0.7,
     max_tokens: int = 4096,
+    max_concurrency: int = 6,
 ) -> list[DetectionResult]:
     """
     对整部小说进行场景检测。
+
+    AI 模式：多章节并发调用 API，大幅缩短总耗时。
+    55 章串行 ≈ 3 分钟 → 6 并发 ≈ 30 秒。
 
     Args:
         novel: 解析后的小说对象
         mode: "rule" 或 "ai"
         api_key: AI 模式所需的 API Key（也可通过环境变量设置）
-        provider: AI 提供商（anthropic/openai/deepseek/openrouter/custom）
-        model: 模型名（可选，不传则使用 provider 默认）
-        base_url: 自定义 base_url（可选）
+        provider: AI 提供商
+        model: 模型名
+        base_url: 自定义 base_url
         temperature: AI 采样温度
         max_tokens: 输出 token 上限
+        max_concurrency: AI 模式最大并发数（默认 6）
 
     Returns:
-        每章的检测结果列表
+        每章的检测结果列表（保持原顺序）
     """
     if mode == "ai":
-        detector: RuleBasedSceneDetector | AIStudioSceneDetector = AIStudioSceneDetector(
-            provider=provider,
-            api_key=api_key,
-            model=model,
-            base_url=base_url,
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
-    else:
-        detector = RuleBasedSceneDetector()
+        # 创建 detector 实例（每个线程独立使用不同的实例避免状态竞争）
+        def _create_detector():
+            return AIStudioSceneDetector(
+                provider=provider,
+                api_key=api_key,
+                model=model,
+                base_url=base_url,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
 
+        # 多线程并发调用 API
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        results_map: dict[int, DetectionResult] = {}
+
+        def _detect_one(chapter, outline):
+            detector = _create_detector()
+            return detector.detect(chapter, outline)
+
+        with ThreadPoolExecutor(max_workers=min(max_concurrency, len(novel.chapters))) as pool:
+            futures = {
+                pool.submit(_detect_one, chapter, novel.get_outline(chapter.number)): chapter.number
+                for chapter in novel.chapters
+            }
+            for future in as_completed(futures):
+                ch_num = futures[future]
+                results_map[ch_num] = future.result()
+
+        # 保持原顺序返回
+        return [results_map[ch.number] for ch in novel.chapters if ch.number in results_map]
+
+    # 规则模式：串行即可（很快）
+    detector = RuleBasedSceneDetector()
     results: list[DetectionResult] = []
     for chapter in novel.chapters:
         outline = novel.get_outline(chapter.number)
-        result = detector.detect(chapter, outline)
-        results.append(result)
-
+        results.append(detector.detect(chapter, outline))
     return results
