@@ -1,8 +1,8 @@
 # Novel-to-Script — AI 小说转剧本工具
 
 <p align="center">
-  <a href="https://novel-to-script-pg8e0hej9-qwe605s-projects.vercel.app"><img src="https://img.shields.io/badge/🌐_在线体验-Vercel-0284c7?style=for-the-badge" alt="在线体验"/></a>
-  <a href="https://b23.tv/RBjEB7E"><img src="https://img.shields.io/badge/🎬_演示视频-B站-fb7299?style=for-the-badge" alt="演示视频"/></a>
+  <a href="https://novel-to-script-indol.vercel.app"><img src="https://img.shields.io/badge/🌐_在线体验-Vercel-0284c7?style=for-the-badge" alt="在线体验"/></a>
+  <a href="https://b23.tv/TiYz9Cp"><img src="https://img.shields.io/badge/🎬_演示视频-B站-fb7299?style=for-the-badge" alt="演示视频"/></a>
 </p>
 
 **核心场景：网文漫剧（动态漫画/有声漫画）**，同时兼容影视剧本、广播剧/有声书剧本、舞台剧。
