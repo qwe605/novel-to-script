@@ -64,6 +64,24 @@ def _parse_zh_num(s: str) -> int | None:
     return result if result > 0 else None
 
 
+def _split_rel_type_desc(text: str) -> tuple[str, str]:
+    """拆分关系描述中的类型和详情。
+    "恋人（两情相悦）" → ("恋人", "两情相悦")
+    "敌人/死对头" → ("敌人", "死对头")
+    "闺蜜" → ("闺蜜", "")
+    """
+    text = text.strip()
+    # 括号内的详情
+    m = re.match(r"(.+?)[（(](.+)[）)]", text)
+    if m:
+        return m.group(1).strip(), m.group(2).strip()
+    # 斜杠分割的类型
+    if "/" in text:
+        parts = text.split("/", 1)
+        return parts[0].strip(), parts[1].strip()
+    return text, ""
+
+
 # =============================================================================
 # 数据结构
 # =============================================================================
@@ -77,6 +95,15 @@ class Chapter:
 
 
 @dataclass
+class CharacterRelationship:
+    """角色关系"""
+    target_name: str = ""           # 关系对象名
+    relation_type: str = ""         # 关系类型：恋人/朋友/敌人/家人/师徒/...
+    description: str = ""           # 关系描述
+    intensity: str = ""             # 关系强度：亲密/一般/紧张/敌对/复杂
+
+
+@dataclass
 class NovelCharacter:
     """从设定.md 解析出的角色信息"""
     name: str
@@ -84,6 +111,10 @@ class NovelCharacter:
     description: str = ""
     voice_tags: list[str] = field(default_factory=list)
     archetype: str = ""
+    personality_traits: list[str] = field(default_factory=list)    # 性格特点
+    relationships: list[CharacterRelationship] = field(default_factory=list)  # 角色关系
+    role: str = ""                  # 角色定位：主角/反派/配角/...
+    appearance: str = ""            # 外貌特征描述
 
 
 @dataclass
@@ -355,6 +386,16 @@ class NotelProjectParser:
                         char.archetype = self._extract_value(line)
                     elif "别名" in line or "昵称" in line:
                         char.aliases = self._extract_tags(line)
+                    elif "性格" in line:
+                        char.personality_traits = self._extract_tags(line)
+                    elif "定位" in line or "角色" in line:
+                        char.role = self._extract_value(line)
+                    elif "外貌" in line or "外观" in line or "长相" in line:
+                        char.appearance = self._extract_value(line)
+                    elif "关系" in line:
+                        # 关系格式: "关系：角色名（恋人/敌人），角色名（朋友）"
+                        rel_text = self._extract_value(line)
+                        char.relationships = self._parse_relationships(rel_text)
 
             characters.append(char)
 
@@ -451,6 +492,85 @@ class NotelProjectParser:
         # 支持中文逗号、顿号、英文逗号分隔
         tags = re.split(r"[，、,]", val)
         return [t.strip() for t in tags if t.strip()]
+
+    @staticmethod
+    def _parse_relationships(text: str) -> list[CharacterRelationship]:
+        """解析关系文本为 CharacterRelationship 列表。
+        支持格式：
+          - "角色A（恋人），角色B（敌人/复仇对象），角色C（闺蜜）"
+          - "角色A-恋人，角色B-敌人"
+          - "角色A: 恋人（两情相悦），角色B: 死对头"
+        """
+        if not text or not text.strip():
+            return []
+        rels: list[CharacterRelationship] = []
+
+        # 先按中文逗号/英文逗号分割（但要避免把"（A，B）"内部分割了）
+        # 简化：用正则匹配 "角色名（关系类型）" 或 "角色名：关系类型"
+        pattern = re.compile(
+            r"([^\s,，、:：（）\(\)]+?)\s*[：:]\s*([^,，、]+)|"           # 角色名：关系描述
+            r"([^\s,，、:：（）\(\)]+?)\s*[（\(]\s*([^）\)]+)\s*[）\)]|"  # 角色名（关系类型）
+            r"([^\s,，、:：（）\(\)]+?)\s*[-—]\s*([^,，、]+)"              # 角色名-关系类型
+        )
+        matches = pattern.findall(text)
+
+        if matches:
+            for m in matches:
+                # 匹配模式1: name: desc
+                if m[0]:
+                    target = m[0].strip()
+                    desc = m[1].strip()
+                    rel_type, rel_desc = _split_rel_type_desc(desc)
+                    rels.append(CharacterRelationship(
+                        target_name=target,
+                        relation_type=rel_type,
+                        description=rel_desc,
+                    ))
+                # 匹配模式2: name（type）
+                elif m[2]:
+                    target = m[2].strip()
+                    desc = m[3].strip()
+                    rel_type, rel_desc = _split_rel_type_desc(desc)
+                    rels.append(CharacterRelationship(
+                        target_name=target,
+                        relation_type=rel_type,
+                        description=rel_desc,
+                    ))
+                # 匹配模式3: name-type
+                elif m[4]:
+                    target = m[4].strip()
+                    desc = m[5].strip()
+                    rel_type, rel_desc = _split_rel_type_desc(desc)
+                    rels.append(CharacterRelationship(
+                        target_name=target,
+                        relation_type=rel_type,
+                        description=rel_desc,
+                    ))
+        else:
+            # 回退：简单按逗号分割
+            parts = re.split(r"[，,]", text)
+            for part in parts:
+                part = part.strip()
+                if not part:
+                    continue
+                # 尝试拆分 "角色名-关系" 或 "角色名 关系"
+                match = re.match(r"(.+?)[-—\s]+(.+)", part)
+                if match:
+                    target = match.group(1).strip()
+                    desc = match.group(2).strip()
+                    rel_type, rel_desc = _split_rel_type_desc(desc)
+                    rels.append(CharacterRelationship(
+                        target_name=target,
+                        relation_type=rel_type,
+                        description=rel_desc,
+                    ))
+                else:
+                    rels.append(CharacterRelationship(
+                        target_name=part,
+                        relation_type="相关",
+                    ))
+
+        return rels
 
 
 # =============================================================================

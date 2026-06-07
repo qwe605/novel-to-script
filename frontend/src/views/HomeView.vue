@@ -330,7 +330,7 @@ function highlightedYaml(text) {
       </div>
 
       <div v-if="yamlText && previewTab === 'script'" style="flex:1;overflow:hidden">
-        <ScriptPreview :yamlText="yamlText" :config="config" @update:yamlText="onYamlEdited" />
+        <ScriptPreview :yamlText="yamlText" :config="config" :aiConfig="aiConfig" @update:yamlText="onYamlEdited" />
       </div>
       <div v-else-if="yamlText && previewTab === 'storyboard' && isManju" style="flex:1;overflow:hidden">
         <StoryboardView :yamlText="yamlText" @update:yamlText="onYamlEdited" />

@@ -129,6 +129,15 @@ class Metadata(BaseModel):
     adaptation_notes: Optional[str] = Field(None, description="改编说明")
 
 
+class CharacterRelationship(BaseModel):
+    """角色关系定义"""
+    target_id: Optional[str] = Field(None, description="关系对象角色 ID（蛇形命名）")
+    target_name: str = Field(..., description="关系对象角色名（中文）")
+    relation_type: str = Field(..., description="关系类型：恋人/朋友/敌人/家人/师徒/...")
+    description: Optional[str] = Field(None, description="关系详细描述")
+    intensity: Optional[str] = Field(None, description="关系强度：亲密/一般/紧张/敌对/复杂")
+
+
 class Character(BaseModel):
     """角色定义"""
     id: str = Field(..., description="角色唯一标识（英文蛇形命名）")
@@ -139,6 +148,11 @@ class Character(BaseModel):
     archetype: Optional[str] = Field(None, description="角色原型")
     # 漫剧常用：角色立绘/表情差分提示
     visual_tags: Optional[list[str]] = Field(None, description="【漫剧】视觉特征标签，如['黑长直','异色瞳','常穿校服']")
+    # 角色深度特征
+    personality_traits: Optional[list[str]] = Field(None, description="性格特点，如['冷静','腹黑','占有欲强']")
+    relationships: Optional[list[CharacterRelationship]] = Field(None, description="角色关系列表")
+    role: Optional[str] = Field(None, description="角色定位：主角/反派/配角/导师/...")
+    appearance: Optional[str] = Field(None, description="外貌特征描述")
 
 
 class Sequence(BaseModel):
@@ -192,6 +206,7 @@ class Scene(BaseModel):
     estimated_duration_seconds: Optional[int] = Field(None, ge=0, description="预估时长（秒）")
     type: Optional[SceneType] = Field(None, description="场景类型")
     mood: Optional[str] = Field(None, description="场景情绪")
+    characters: Optional[list[str]] = Field(None, description="场景中出现的角色")
     beats: list[Beat] = Field(..., description="节拍列表")
 
 

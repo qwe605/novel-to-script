@@ -27,11 +27,12 @@ from pathlib import Path
 from typing import Callable, cast
 
 from novel_parser import NovelTextParser, NotelProjectParser, ParsedNovel
-from scene_detector import detect_scenes
+from scene_detector import detect_scenes, extract_characters_with_ai
 from yaml_exporter import (
     Beat,
     BeatExtensions,
     Character,
+    CharacterRelationship,
     Episode,
     IntExt,
     ManjuExtensions,
@@ -486,14 +487,67 @@ def generate_script(
     if verbose:
         print(f"       检测到 {total_scenes} 个场景")
 
-    # 2. 构建角色表
+    # 2. AI 角色提取（AI 模式下，若没有设定或角色信息不完整则自动提取）
     t0 = time.time()
+    _progress("角色提取与分析", 0.45)
+    if mode == "ai" and api_key:
+        # 判断是否需要 AI 提取：没有角色，或角色缺少性格/关系等深度信息
+        need_ai_extraction = (
+            not novel.characters
+            or all(
+                not (getattr(c, "personality_traits", None) or getattr(c, "relationships", None))
+                for c in novel.characters
+            )
+        )
+        if need_ai_extraction:
+            try:
+                if verbose:
+                    print(f"       [AI 角色特征提取中...]")
+                ai_characters = extract_characters_with_ai(
+                    novel,
+                    api_key=api_key,
+                    provider=provider,
+                    model=model,
+                    base_url=base_url,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                )
+                if ai_characters:
+                    # 合并：保留已有设定中的角色名，用 AI 补充深度特征
+                    if novel.characters:
+                        existing_names = {c.name for c in novel.characters}
+                        for ac in ai_characters:
+                            if ac.name not in existing_names:
+                                novel.characters.append(ac)
+                            else:
+                                # 用 AI 提取的特征补充已有角色（不覆盖已有字段）
+                                for ec in novel.characters:
+                                    if ec.name == ac.name:
+                                        if not ec.personality_traits and ac.personality_traits:
+                                            ec.personality_traits = ac.personality_traits
+                                        if not ec.relationships and ac.relationships:
+                                            ec.relationships = ac.relationships
+                                        if not ec.role and ac.role:
+                                            ec.role = ac.role
+                                        if not ec.appearance and ac.appearance:
+                                            ec.appearance = ac.appearance
+                                        break
+                    else:
+                        novel.characters = ai_characters
+                    if verbose:
+                        print(f"       [AI 提取了 {len(ai_characters)} 个角色]")
+            except Exception as e:
+                if verbose:
+                    print(f"       [AI 角色提取失败，使用已有设定: {e}]")
+
+    # 3. 构建角色表
     _progress("构建角色表", 0.50)
     characters = _build_characters(novel)
+    _lap("角色提取")
     if verbose:
         print(f"       [角色表构建耗时 {time.time()-t0:.1f}s]")
 
-    # 3. 构建 Sequence 和 Scene
+    # 4. 构建 Sequence 和 Scene
     t0 = time.time()
     _progress("构建场景结构", 0.60)
     sequences, scenes = _build_sequences_and_scenes(detection_results, novel, characters, script_type, panel_mode)
@@ -501,7 +555,7 @@ def generate_script(
     if verbose:
         print(f"       [场景构建耗时 {time.time()-t0:.1f}s]")
 
-    # 4. 漫剧：集数规划（支持 episode_config）
+    # 5. 漫剧：集数规划（支持 episode_config）
     t0 = time.time()
     _progress("场景结构完成", 0.75)
     episodes = None
@@ -579,6 +633,10 @@ def _build_characters(novel: ParsedNovel) -> list[Character]:
     """从小说解析结果构建角色表"""
     characters: list[Character] = []
     if novel.characters:
+        # 先建立 name→id 映射，用于关系中的 target_id 回填
+        name_to_id: dict[str, str] = {}
+        temp_chars: list[dict] = []
+
         for nc in (novel.characters or []):
             if not getattr(nc, "name", None):
                 continue
@@ -586,9 +644,37 @@ def _build_characters(novel: ParsedNovel) -> list[Character]:
             char_id = nc.name.strip("女主：男主：")
             char_id = char_id.split("（")[0].split("[")[0].strip()
             char_id = char_id.lower().replace(" ", "_")[:20]
-            # 确保 id 不为空
             if not char_id:
                 char_id = f"char_{len(characters)+1}"
+
+            name_to_id[nc.name] = char_id
+            # 也注册别名
+            for alias in (nc.aliases or []):
+                if alias not in name_to_id:
+                    name_to_id[alias] = char_id
+
+            temp_chars.append({"nc": nc, "id": char_id})
+
+        # 第二遍：构建 Character（此时 name_to_id 已完整，可回填 target_id）
+        for entry in temp_chars:
+            nc = entry["nc"]
+            char_id = entry["id"]
+
+            # 映射关系 → CharacterRelationship（回填 target_id）
+            yaml_rels: list[CharacterRelationship] | None = None
+            raw_rels = getattr(nc, "relationships", None) or []
+            if raw_rels:
+                yaml_rels = []
+                for rel in raw_rels:
+                    target_name = getattr(rel, "target_name", "") or ""
+                    target_id = name_to_id.get(target_name)
+                    yaml_rels.append(CharacterRelationship(
+                        target_id=target_id,
+                        target_name=target_name,
+                        relation_type=getattr(rel, "relation_type", "") or "相关",
+                        description=getattr(rel, "description", None) or None,
+                        intensity=getattr(rel, "intensity", None) or None,
+                    ))
 
             characters.append(Character(
                 id=char_id,
@@ -597,6 +683,10 @@ def _build_characters(novel: ParsedNovel) -> list[Character]:
                 description=nc.description or None,
                 voice_tags=nc.voice_tags or None,
                 archetype=nc.archetype or None,
+                personality_traits=getattr(nc, "personality_traits", None) or None,
+                relationships=yaml_rels,
+                role=getattr(nc, "role", None) or None,
+                appearance=getattr(nc, "appearance", None) or None,
             ))
     else:
         characters.append(Character(
@@ -673,6 +763,9 @@ def _build_sequences_and_scenes(
                     extensions=extensions,
                 ))
 
+            # 收集场景角色（AI 模式有，规则模式可能也有）
+            scene_chars = getattr(detected_scene, "characters", None) or None
+
             scenes.append(Scene(
                 scene_id=sc_id,
                 sequence_id=seq_id,
@@ -682,6 +775,7 @@ def _build_sequences_and_scenes(
                     time=detected_scene.heading_time,
                 ),
                 source_chapters=detected_scene.source_chapters,
+                characters=scene_chars,
                 estimated_duration_seconds=detected_scene.estimated_duration_seconds,
                 type=cast(SceneType, detected_scene.scene_type),
                 mood=detected_scene.mood or None,

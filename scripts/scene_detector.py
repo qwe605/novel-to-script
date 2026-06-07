@@ -42,6 +42,7 @@ class DetectedScene:
     estimated_duration_seconds: int = 60
     scene_type: str = "dialogue_heavy"
     mood: str = ""
+    characters: list[str] = field(default_factory=list)  # 场景中出现的角色名
     beats: list[DetectedBeat] = field(default_factory=list)
 
 
@@ -126,7 +127,9 @@ class RuleBasedSceneDetector:
         self._int_regex = re.compile("|".join(self.INT_KEYWORDS))
         self._ext_regex = re.compile("|".join(self.EXT_KEYWORDS))
 
-    def detect(self, chapter: "Chapter", outline: Optional["ChapterOutline"] = None) -> DetectionResult:
+    def detect(self, chapter: "Chapter", outline: Optional["ChapterOutline"] = None,
+               known_characters: list[str] | None = None,
+               alias_to_primary: dict[str, str] | None = None) -> DetectionResult:
         """
         对单章进行场景检测。
         默认策略：一章 = 一个 Scene（简化处理，确保可用性）。
@@ -139,9 +142,11 @@ class RuleBasedSceneDetector:
         # 尝试场景分割
         scene_blocks = self._split_scenes(paragraphs)
 
+        char_names = known_characters or []
+        alias_map = alias_to_primary or {}
         scenes: list[DetectedScene] = []
         for block_idx, block in enumerate(scene_blocks):
-            scene = self._build_scene(block, chapter.number, chapter.title, outline, block_idx)
+            scene = self._build_scene(block, chapter.number, chapter.title, outline, block_idx, char_names, alias_map)
             scenes.append(scene)
 
         return DetectionResult(chapter_number=chapter.number, scenes=scenes)
@@ -232,15 +237,29 @@ class RuleBasedSceneDetector:
         chapter_title: Optional[str],
         outline: Optional["ChapterOutline"],
         block_index: int,
+        known_characters: list[str] | None = None,
+        alias_to_primary: dict[str, str] | None = None,
     ) -> DetectedScene:
         """将段落块构建为 DetectedScene"""
         scene = DetectedScene()
         scene.source_chapters = [chapter_number]
+        char_names = known_characters or []
+        alias_map = alias_to_primary or {}
 
         # 推断 heading
         scene.heading_location = self._infer_location(paragraphs, chapter_title)
         scene.heading_time = self._infer_time(paragraphs, chapter_title)
         scene.heading_int_ext = self._infer_int_ext(paragraphs)
+
+        # 提取场景中出现的角色（别名映射回主名）
+        full_text = "".join(paragraphs)
+        seen_chars: set[str] = set()
+        for cn in char_names:
+            if cn in full_text:
+                # 如果是别名，映射回主名
+                primary = alias_map.get(cn, cn)
+                seen_chars.add(primary)
+        scene.characters = sorted(seen_chars)
 
         # 推断 mood
         if outline and outline.emotion_arc:
@@ -632,6 +651,7 @@ class AIStudioSceneDetector:
                 source_chapters=[chapter.number],
                 scene_type=(sc_data.get("scene_type") or "dialogue_heavy"),
                 mood=(sc_data.get("mood") or ""),
+                characters=list(characters),
                 beats=beats,
             ))
 
@@ -773,6 +793,17 @@ def detect_scenes(
     Returns:
         每章的检测结果列表（保持原顺序）
     """
+    # 收集已知角色名（用于规则模式的角色匹配，也用于 AI 模式的 beat 归因）
+    known_char_names: list[str] = []
+    alias_to_primary: dict[str, str] = {}  # 别名 → 主名
+    if novel.characters:
+        for nc in novel.characters:
+            known_char_names.append(nc.name)
+            for alias in (nc.aliases or []):
+                known_char_names.append(alias)
+                alias_to_primary[alias] = nc.name
+    known_char_names = sorted(set(known_char_names))
+
     if mode == "ai":
         # 创建 detector 实例（每个线程独立使用不同的实例避免状态竞争）
         def _create_detector():
@@ -811,5 +842,179 @@ def detect_scenes(
     results: list[DetectionResult] = []
     for chapter in novel.chapters:
         outline = novel.get_outline(chapter.number)
-        results.append(detector.detect(chapter, outline))
+        results.append(detector.detect(chapter, outline, known_char_names, alias_to_primary))
     return results
+
+
+# =============================================================================
+# AI 角色特征提取
+# =============================================================================
+
+def extract_characters_with_ai(
+    novel: "ParsedNovel",
+    api_key: str | None = None,
+    provider: str = "deepseek",
+    model: str | None = None,
+    base_url: str | None = None,
+    temperature: float = 0.7,
+    max_tokens: int = 4096,
+) -> list["NovelCharacter"]:
+    """
+    使用 AI 从小说文本中提取角色深度特征（性格、关系、定位、外貌）。
+
+    当小说没有设定.md 或需要 AI 补充角色信息时调用。
+    采样小说前若干章发送给 AI，要求返回结构化的角色特征。
+
+    Returns:
+        NovelCharacter 列表，包含完整角色特征
+    """
+    from novel_parser import NovelCharacter, CharacterRelationship
+
+    if not novel.chapters:
+        return list(novel.characters) if novel.characters else []
+
+    # 采样文本：前 3 章 + 中间 2 章 + 最后 1 章（覆盖角色弧线）
+    sampled_chapters: list[str] = []
+    n = len(novel.chapters)
+    indices: set[int] = set()
+    indices.update(range(min(3, n)))
+    if n > 5:
+        mid = n // 2
+        indices.update([mid - 1, mid])
+    if n > 3:
+        indices.add(n - 1)
+
+    for i in sorted(indices):
+        ch = novel.chapters[i]
+        content = (ch.content or "")[:3000]  # 每章最多 3000 字
+        header = f"第{ch.number}章"
+        if ch.title:
+            header += f" {ch.title}"
+        sampled_chapters.append(f"## {header}\n\n{content}")
+
+    full_text = "\n\n".join(sampled_chapters)
+
+    # 如果有已有角色信息（从设定.md 解析的部分），告诉 AI 补充
+    existing_chars = ""
+    if novel.characters:
+        char_lines = []
+        for c in novel.characters:
+            parts = [f"- {c.name}"]
+            if c.description:
+                parts.append(f"  描述：{c.description}")
+            if c.archetype:
+                parts.append(f"  原型：{c.archetype}")
+            char_lines.append("\n".join(parts))
+        existing_chars = "已知角色（请基于原文补充性格、关系、外貌等）：\n" + "\n".join(char_lines)
+
+    system_prompt = """你是一位专业的网文角色分析师，精通从小说文本中提取角色深度特征。
+
+## 任务
+
+分析小说文本，提取每个主要角色的以下特征：
+1. **性格特点**：列出 3-6 个具体性格特征词（如"冷静理性""占有欲强""刀子嘴豆腐心"）
+2. **角色定位**：主角/反派/配角/导师/挚友/…
+3. **外貌特征**：简练的外貌描述（如"黑长直、异色瞳、常穿校服"）
+4. **关系网络**：该角色与其他角色的关系（类型+描述）
+5. **声音特点**：说话风格/语言习惯（如"低沉短句""话少但致命""碎嘴子"）
+
+## 输出格式
+
+严格输出 JSON（不要 markdown 标记），格式：
+{
+  "characters": [
+    {
+      "name": "角色名",
+      "aliases": ["别名1", "别名2"],
+      "personality_traits": ["性格1", "性格2", "性格3"],
+      "role": "主角",
+      "appearance": "外貌描述",
+      "voice_tags": ["声音特点1"],
+      "description": "角色简述（1-2句）",
+      "archetype": "角色原型（如：病娇男主/清醒女主/隐藏大佬）",
+      "relationships": [
+        {
+          "target_name": "另一个角色名",
+          "relation_type": "恋人",
+          "description": "两人互为救赎",
+          "intensity": "亲密"
+        }
+      ]
+    }
+  ]
+}
+
+## 提取规则
+
+1. 只提取在文本中实际出现的角色（不要凭空创造）
+2. 性格特点要具体，避免"善良""勇敢"等泛词
+3. 关系必须双向可查（A对B的关系 = B是A的关系对象）
+4. 第一人称"我"→ 推测实际角色名
+5. 外貌只提取文本中有描写的（没有可留空）
+6. 角色名使用原文中最常见的称呼"""
+
+    user_prompt = f"小说文本：\n\n{full_text}\n\n{existing_chars}\n\n请分析上述文本，返回所有主要角色的特征。只返回 JSON。"
+
+    # 使用 AIStudioSceneDetector 的 API 调用能力
+    detector = AIStudioSceneDetector(
+        provider=provider,
+        api_key=api_key,
+        model=model,
+        base_url=base_url,
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+
+    if detector.api_type == "anthropic":
+        raw = detector._call_anthropic(system_prompt, user_prompt)
+    else:
+        raw = detector._call_openai_compatible(system_prompt, user_prompt)
+
+    # 提取 JSON
+    import json
+    raw_text = raw
+    if "```json" in raw_text:
+        raw_text = raw_text.split("```json")[1].split("```")[0].strip()
+    elif "```" in raw_text:
+        raw_text = raw_text.split("```")[1].split("```")[0].strip()
+
+    try:
+        data = json.loads(raw_text)
+    except json.JSONDecodeError as e:
+        raise RuntimeError(
+            f"AI 角色提取返回了非标准 JSON，原始内容前 200 字符: {raw_text[:200]}"
+        ) from e
+
+    characters_data = data.get("characters") or []
+    result: list[NovelCharacter] = []
+
+    for cd in characters_data:
+        if not isinstance(cd, dict):
+            continue
+        name = cd.get("name", "").strip()
+        if not name:
+            continue
+
+        rels_data = cd.get("relationships") or []
+        relationships = []
+        for rd in rels_data:
+            relationships.append(CharacterRelationship(
+                target_name=rd.get("target_name", ""),
+                relation_type=rd.get("relation_type", ""),
+                description=rd.get("description", ""),
+                intensity=rd.get("intensity", ""),
+            ))
+
+        result.append(NovelCharacter(
+            name=name,
+            aliases=cd.get("aliases") or [],
+            description=cd.get("description", ""),
+            voice_tags=cd.get("voice_tags") or [],
+            archetype=cd.get("archetype", ""),
+            personality_traits=cd.get("personality_traits") or [],
+            relationships=relationships,
+            role=cd.get("role", ""),
+            appearance=cd.get("appearance", ""),
+        ))
+
+    return result

@@ -76,3 +76,9 @@ export async function testProvider(params) {
   const res = await client.post('/api/providers/test', params)
   return res.data
 }
+
+/** AI 辅助编辑（场景/节拍增强） */
+export async function aiAssist(params) {
+  const res = await client.post('/api/assist', params)
+  return res.data
+}
