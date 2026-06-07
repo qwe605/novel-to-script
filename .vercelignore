@@ -24,8 +24,8 @@ scripts/tests
 scripts/tests/**
 references
 references/**
-examples
-examples/**
+examples/*.yaml
+examples/*.yml
 frontend/dist
 frontend/dist/**
 .env
